@@ -1,0 +1,27 @@
+{
+  "schema": 1,
+  "source": "https://tablebase.lichess.ovh/standard",
+  "fen": "8/k7/8/8/8/3K4/8/1R6 b - - 0 1",
+  "entry": {
+    "category": "loss",
+    "dtm": -12,
+    "checkmate": false,
+    "stalemate": false,
+    "moves": [
+      {
+        "uci": "a7a6",
+        "category": "win",
+        "dtm": 11,
+        "checkmate": false,
+        "stalemate": false
+      },
+      {
+        "uci": "a7a8",
+        "category": "win",
+        "dtm": 11,
+        "checkmate": false,
+        "stalemate": false
+      }
+    ]
+  }
+}

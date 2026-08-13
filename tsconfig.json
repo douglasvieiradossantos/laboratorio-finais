@@ -10,6 +10,9 @@
     "module": "esnext",
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
+    // Os scripts de conteúdo rodam direto no Node (`node scripts/x.ts`), que
+    // exige a extensão .ts no import. Só vale com noEmit, que é o nosso caso.
+    "allowImportingTsExtensions": true,
     "isolatedModules": true,
     "jsx": "react-jsx",
     "incremental": true,

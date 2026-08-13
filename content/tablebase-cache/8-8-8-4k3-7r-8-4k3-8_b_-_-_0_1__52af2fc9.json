@@ -1,0 +1,48 @@
+{
+  "schema": 1,
+  "source": "https://tablebase.lichess.ovh/standard",
+  "fen": "8/8/8/4k3/7R/8/4K3/8 b - - 0 1",
+  "entry": {
+    "category": "loss",
+    "dtm": -26,
+    "checkmate": false,
+    "stalemate": false,
+    "moves": [
+      {
+        "uci": "e5d5",
+        "category": "win",
+        "dtm": 25,
+        "checkmate": false,
+        "stalemate": false
+      },
+      {
+        "uci": "e5f5",
+        "category": "win",
+        "dtm": 25,
+        "checkmate": false,
+        "stalemate": false
+      },
+      {
+        "uci": "e5d6",
+        "category": "win",
+        "dtm": 25,
+        "checkmate": false,
+        "stalemate": false
+      },
+      {
+        "uci": "e5e6",
+        "category": "win",
+        "dtm": 25,
+        "checkmate": false,
+        "stalemate": false
+      },
+      {
+        "uci": "e5f6",
+        "category": "win",
+        "dtm": 21,
+        "checkmate": false,
+        "stalemate": false
+      }
+    ]
+  }
+}

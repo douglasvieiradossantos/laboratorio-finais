@@ -1,0 +1,1465 @@
+{
+  "id": "N0-R-MATE",
+  "title": "Mate de torre e rei",
+  "orientation": "white",
+  "domainCriterion": "D1",
+  "status": "draft",
+  "errors": {
+    "cheque-inutil": {
+      "verdict": "off-method",
+      "text": "Xeque sem plano não progride: o rei foge e nada mudou. O xeque só ajuda quando encolhe a caixa — e para isso o seu rei precisa estar perto."
+    },
+    "rei-distante": {
+      "verdict": "off-method",
+      "text": "A torre não dá mate sozinha. Aproxime o seu rei — é ele quem fecha a caixa."
+    },
+    "entrega-torre": {
+      "verdict": "loses-win",
+      "text": "A torre ficou ao alcance do rei preto. Sem a torre, não há mais mate: é empate."
+    }
+  },
+  "fallbacks": {
+    "winningOffMethod": "Esse lance ainda ganha, mas não é o método da aula. Volte e tente o lance da técnica.",
+    "losesWin": "Esse lance joga a vitória fora. Volte e tente de novo."
+  },
+  "stages": {
+    "objective": {
+      "positionId": "pos-n0-rmate-fx-a",
+      "text": "Com torre e rei contra rei sozinho, você vai encurralar o rei adversário numa borda e dar mate. A técnica tem três passos que se repetem: cortar o caminho do rei preto com a torre, aproximar o seu rei, e encolher a caixa até não sobrar casa nenhuma.",
+      "mastery": "Dominado = dar o mate numa posição que você nunca viu, sem dica, sem nenhum lance que jogue a vitória fora e dentro do limite de lances — e depois vencer o computador na prática."
+    },
+    "example": {
+      "positionId": "pos-n0-rmate-fx-a",
+      "steps": [
+        {
+          "move": "h1h4",
+          "text": "A torre corta a 4ª fileira. Daqui para baixo o rei preto não passa: a caixa dele é a metade de cima do tabuleiro.",
+          "arrows": [
+            [
+              "h1",
+              "h4"
+            ]
+          ],
+          "highlights": [
+            "h4"
+          ]
+        },
+        {
+          "move": "e5d5",
+          "text": "O rei preto se aproxima da torre — é a única coisa que ele pode tentar."
+        },
+        {
+          "move": "e2d3",
+          "text": "Agora o rei branco entra. A torre sozinha não dá mate; quem fecha a caixa é o rei.",
+          "arrows": [
+            [
+              "e2",
+              "d3"
+            ]
+          ],
+          "highlights": [
+            "d3"
+          ]
+        },
+        {
+          "move": "d5e5",
+          "text": "O rei preto volta para o meio."
+        },
+        {
+          "move": "h4h5",
+          "text": "Com o rei branco perto, o xeque empurra de verdade: a caixa perde mais uma fileira.",
+          "arrows": [
+            [
+              "h4",
+              "h5"
+            ]
+          ],
+          "highlights": [
+            "h5"
+          ]
+        },
+        {
+          "move": "e5d6",
+          "text": "O rei preto recua — o xeque o obriga."
+        },
+        {
+          "move": "d3e4",
+          "text": "Quando a torre não tem o que fazer, aproxime o rei.",
+          "arrows": [
+            [
+              "d3",
+              "e4"
+            ]
+          ],
+          "highlights": [
+            "e4"
+          ]
+        },
+        {
+          "move": "d6c6",
+          "text": "O rei preto foge pelo lado."
+        },
+        {
+          "move": "h5d5",
+          "text": "A torre corta também pela coluna. A caixa virou um retângulo no canto de cima, à esquerda.",
+          "arrows": [
+            [
+              "h5",
+              "d5"
+            ]
+          ],
+          "highlights": [
+            "d5"
+          ]
+        },
+        {
+          "move": "c6b6",
+          "text": "O rei preto continua fugindo pela borda."
+        },
+        {
+          "move": "e4d4",
+          "text": "Rei branco atrás dele.",
+          "arrows": [
+            [
+              "e4",
+              "d4"
+            ]
+          ],
+          "highlights": [
+            "d4"
+          ]
+        },
+        {
+          "move": "b6c6",
+          "text": "O preto tenta se manter na frente do seu rei."
+        },
+        {
+          "move": "d4c4",
+          "text": "Você toma a frente: os reis ficam a dois passos, um de olho no outro.",
+          "arrows": [
+            [
+              "d4",
+              "c4"
+            ]
+          ],
+          "highlights": [
+            "c4"
+          ]
+        },
+        {
+          "move": "c6b6",
+          "text": "O rei preto recua de novo."
+        },
+        {
+          "move": "d5d6",
+          "text": "Reis frente a frente é a senha do xeque: a caixa perde mais uma fileira.",
+          "arrows": [
+            [
+              "d5",
+              "d6"
+            ]
+          ],
+          "highlights": [
+            "d6"
+          ]
+        },
+        {
+          "move": "b6b7",
+          "text": "Ele desce mais um degrau."
+        },
+        {
+          "move": "c4b5",
+          "text": "O rei branco vai junto — sempre atrás do preto.",
+          "arrows": [
+            [
+              "c4",
+              "b5"
+            ]
+          ],
+          "highlights": [
+            "b5"
+          ]
+        },
+        {
+          "move": "b7c7",
+          "text": "O rei preto procura espaço no meio."
+        },
+        {
+          "move": "d6d1",
+          "text": "De perto a torre seria atacada. Ela se afasta pela coluna, sem largar o corte, para cortar de novo no lance seguinte.",
+          "arrows": [
+            [
+              "d6",
+              "d1"
+            ]
+          ],
+          "highlights": [
+            "d1"
+          ]
+        },
+        {
+          "move": "c7b7",
+          "text": "O rei preto volta."
+        },
+        {
+          "move": "d1c1",
+          "text": "Agora sim: corte na coluna c. Sobram só duas colunas para o rei preto.",
+          "arrows": [
+            [
+              "d1",
+              "c1"
+            ]
+          ],
+          "highlights": [
+            "c1"
+          ]
+        },
+        {
+          "move": "b7a7",
+          "text": "Ele é empurrado para a coluna da borda."
+        },
+        {
+          "move": "b5c6",
+          "text": "Rei branco na frente.",
+          "arrows": [
+            [
+              "b5",
+              "c6"
+            ]
+          ],
+          "highlights": [
+            "c6"
+          ]
+        },
+        {
+          "move": "a7a8",
+          "text": "Não há mais para onde ir a não ser o canto."
+        },
+        {
+          "move": "c6c7",
+          "text": "Oposição: com o rei em c7, o preto perde b7 e b8.",
+          "arrows": [
+            [
+              "c6",
+              "c7"
+            ]
+          ],
+          "highlights": [
+            "c7"
+          ]
+        },
+        {
+          "move": "a8a7",
+          "text": "Só sobrou essa casa."
+        },
+        {
+          "move": "c1a1",
+          "text": "Xeque na coluna a. O rei preto não tem nenhuma casa: xeque-mate.",
+          "arrows": [
+            [
+              "c1",
+              "a1"
+            ]
+          ],
+          "highlights": [
+            "a1"
+          ]
+        }
+      ]
+    },
+    "guided": {
+      "positionId": "pos-n0-rmate-fx-a",
+      "intro": "Sua vez. As casas marcadas mostram a ideia do lance, e a dica está aí se você precisar.",
+      "root": "n1",
+      "nodes": {
+        "n1": {
+          "fen": "8/8/8/4k3/8/8/4K3/7R w - - 0 1",
+          "hint": "Corte o caminho do rei preto: leve a torre para a fileira logo abaixo dele.",
+          "highlights": [
+            "h4"
+          ],
+          "expects": [
+            {
+              "moves": [
+                "h1h4"
+              ],
+              "reply": "e5d5",
+              "next": "n2",
+              "feedback": "Corte feito — o rei preto não desce mais da 5ª fileira. Ele se aproxima da torre para incomodar."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "h1h5"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "e2d1"
+              ],
+              "errorId": "rei-distante"
+            }
+          ],
+          "winningMoves": [
+            "e2d1",
+            "e2d2",
+            "e2d3",
+            "e2e1",
+            "e2e3",
+            "e2f1",
+            "e2f2",
+            "e2f3",
+            "h1a1",
+            "h1b1",
+            "h1c1",
+            "h1d1",
+            "h1e1",
+            "h1f1",
+            "h1g1",
+            "h1h2",
+            "h1h3",
+            "h1h4",
+            "h1h5",
+            "h1h6",
+            "h1h7",
+            "h1h8"
+          ]
+        },
+        "n2": {
+          "fen": "8/8/8/3k4/7R/8/4K3/8 w - - 2 2",
+          "hint": "A torre já corta. Agora é a vez do seu rei: traga-o para perto.",
+          "highlights": [
+            "d3"
+          ],
+          "expects": [
+            {
+              "moves": [
+                "e2d3"
+              ],
+              "reply": "d5e5",
+              "next": "n3",
+              "feedback": "O rei branco entra no jogo. O preto volta para o meio."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "h4h5"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "e2d1"
+              ],
+              "errorId": "rei-distante"
+            },
+            {
+              "moves": [
+                "h4c4"
+              ],
+              "errorId": "entrega-torre"
+            }
+          ],
+          "winningMoves": [
+            "e2d1",
+            "e2d2",
+            "e2d3",
+            "e2e1",
+            "e2e3",
+            "e2f1",
+            "e2f2",
+            "e2f3",
+            "h4a4",
+            "h4b4",
+            "h4f4",
+            "h4g4",
+            "h4h1",
+            "h4h2",
+            "h4h3",
+            "h4h5",
+            "h4h6",
+            "h4h7",
+            "h4h8"
+          ]
+        },
+        "n3": {
+          "fen": "8/8/8/4k3/7R/3K4/8/8 w - - 4 3",
+          "hint": "Seu rei chegou. Agora o xeque vale a pena: empurre o rei preto mais uma fileira.",
+          "highlights": [
+            "h5"
+          ],
+          "expects": [
+            {
+              "moves": [
+                "h4h5"
+              ],
+              "reply": "e5d6",
+              "next": "n4",
+              "feedback": "A caixa encolheu: da 6ª fileira para cima é tudo o que sobrou para o rei preto."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "h4e4"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "d3c2"
+              ],
+              "errorId": "rei-distante"
+            },
+            {
+              "moves": [
+                "h4f4"
+              ],
+              "errorId": "entrega-torre"
+            }
+          ],
+          "winningMoves": [
+            "d3c2",
+            "d3c3",
+            "d3c4",
+            "d3d2",
+            "d3e2",
+            "d3e3",
+            "h4a4",
+            "h4b4",
+            "h4c4",
+            "h4d4",
+            "h4e4",
+            "h4g4",
+            "h4h1",
+            "h4h2",
+            "h4h3",
+            "h4h5",
+            "h4h6",
+            "h4h7",
+            "h4h8"
+          ]
+        },
+        "n4": {
+          "fen": "8/8/3k4/7R/8/3K4/8/8 w - - 6 4",
+          "hint": "A torre fez a parte dela. Aproxime o rei outra vez.",
+          "highlights": [
+            "e4"
+          ],
+          "expects": [
+            {
+              "moves": [
+                "d3e4"
+              ],
+              "reply": "d6c6",
+              "next": "n5",
+              "feedback": "Rei mais perto. O preto foge pelo lado, mas a caixa não cresce."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "h5h6"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "d3c2"
+              ],
+              "errorId": "rei-distante"
+            },
+            {
+              "moves": [
+                "h5c5"
+              ],
+              "errorId": "entrega-torre"
+            }
+          ],
+          "winningMoves": [
+            "d3c2",
+            "d3c3",
+            "d3c4",
+            "d3d2",
+            "d3d4",
+            "d3e2",
+            "d3e3",
+            "d3e4",
+            "h5a5",
+            "h5b5",
+            "h5f5",
+            "h5g5",
+            "h5h1",
+            "h5h2",
+            "h5h3",
+            "h5h4",
+            "h5h6",
+            "h5h7",
+            "h5h8"
+          ]
+        },
+        "n5": {
+          "fen": "8/8/2k5/7R/4K3/8/8/8 w - - 8 5",
+          "hint": "Corte também pela coluna: a torre na coluna ao lado do rei preto.",
+          "highlights": [
+            "d5"
+          ],
+          "expects": [
+            {
+              "moves": [
+                "h5d5"
+              ],
+              "reply": "c6b6",
+              "next": "n6",
+              "feedback": "Agora a caixa é um retângulo pequeno no canto de cima, à esquerda."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "h5h6"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "e4d3"
+              ],
+              "errorId": "rei-distante"
+            },
+            {
+              "moves": [
+                "h5b5"
+              ],
+              "errorId": "entrega-torre"
+            }
+          ],
+          "winningMoves": [
+            "e4d3",
+            "e4d4",
+            "e4e3",
+            "e4e5",
+            "e4f3",
+            "e4f4",
+            "e4f5",
+            "h5a5",
+            "h5d5",
+            "h5e5",
+            "h5f5",
+            "h5g5",
+            "h5h1",
+            "h5h2",
+            "h5h3",
+            "h5h4",
+            "h5h6",
+            "h5h7",
+            "h5h8"
+          ]
+        },
+        "n6": {
+          "fen": "8/8/1k6/3R4/4K3/8/8/8 w - - 10 6",
+          "hint": "A torre está bem onde precisa. Ande com o rei.",
+          "highlights": [
+            "d4"
+          ],
+          "expects": [
+            {
+              "moves": [
+                "e4d4"
+              ],
+              "reply": "b6c6",
+              "next": "n7",
+              "feedback": "O rei branco vem atrás; o preto volta para o lado da torre."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "d5d6"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "e4f4"
+              ],
+              "errorId": "rei-distante"
+            },
+            {
+              "moves": [
+                "d5a5"
+              ],
+              "errorId": "entrega-torre"
+            }
+          ],
+          "winningMoves": [
+            "d5d1",
+            "d5d2",
+            "d5d3",
+            "d5d4",
+            "d5d6",
+            "d5d7",
+            "d5d8",
+            "d5e5",
+            "d5f5",
+            "d5g5",
+            "d5h5",
+            "e4d3",
+            "e4d4",
+            "e4e3",
+            "e4e5",
+            "e4f3",
+            "e4f4",
+            "e4f5"
+          ]
+        },
+        "n7": {
+          "fen": "8/8/2k5/3R4/3K4/8/8/8 w - - 12 7",
+          "hint": "Continue subindo com o rei, tomando a frente do rei preto.",
+          "highlights": [
+            "c4"
+          ],
+          "expects": [
+            {
+              "moves": [
+                "d4c4"
+              ],
+              "reply": "c6b6",
+              "next": "n8",
+              "feedback": "Os reis ficam a dois passos, um olhando para o outro. É essa a posição que o xeque aproveita."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "d5c5"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "d5b5"
+              ],
+              "errorId": "entrega-torre"
+            }
+          ],
+          "winningMoves": [
+            "d4c4",
+            "d4e4",
+            "d4e5",
+            "d5a5",
+            "d5c5",
+            "d5d8",
+            "d5e5",
+            "d5f5",
+            "d5g5",
+            "d5h5"
+          ]
+        },
+        "n8": {
+          "fen": "8/8/1k6/3R4/2K5/8/8/8 w - - 14 8",
+          "hint": "Reis frente a frente é a senha: agora o xeque empurra.",
+          "highlights": [
+            "d6"
+          ],
+          "expects": [
+            {
+              "moves": [
+                "d5d6"
+              ],
+              "reply": "b6b7",
+              "next": "n9",
+              "feedback": "Mais uma fileira a menos. O rei preto desce para a 7ª."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "d5b5"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "c4b3"
+              ],
+              "errorId": "rei-distante"
+            },
+            {
+              "moves": [
+                "d5a5"
+              ],
+              "errorId": "entrega-torre"
+            }
+          ],
+          "winningMoves": [
+            "c4b3",
+            "c4b4",
+            "c4c3",
+            "c4d3",
+            "c4d4",
+            "d5b5",
+            "d5c5",
+            "d5d1",
+            "d5d2",
+            "d5d3",
+            "d5d4",
+            "d5d6",
+            "d5d7",
+            "d5d8",
+            "d5e5",
+            "d5f5",
+            "d5g5",
+            "d5h5"
+          ]
+        },
+        "n9": {
+          "fen": "8/1k6/3R4/8/2K5/8/8/8 w - - 16 9",
+          "hint": "De novo o rei: atrás do preto, sempre.",
+          "highlights": [
+            "b5"
+          ],
+          "expects": [
+            {
+              "moves": [
+                "c4b5"
+              ],
+              "reply": "b7c7",
+              "next": "n10",
+              "feedback": "O rei branco acompanha; o preto procura espaço no meio."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "d6d7"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "c4b3"
+              ],
+              "errorId": "rei-distante"
+            },
+            {
+              "moves": [
+                "d6a6"
+              ],
+              "errorId": "entrega-torre"
+            }
+          ],
+          "winningMoves": [
+            "c4b3",
+            "c4b4",
+            "c4b5",
+            "c4c3",
+            "c4c5",
+            "c4d3",
+            "c4d4",
+            "c4d5",
+            "d6d1",
+            "d6d2",
+            "d6d3",
+            "d6d4",
+            "d6d5",
+            "d6d7",
+            "d6d8",
+            "d6e6",
+            "d6f6",
+            "d6g6",
+            "d6h6"
+          ]
+        },
+        "n10": {
+          "fen": "8/2k5/3R4/1K6/8/8/8/8 w - - 18 10",
+          "hint": "Aqui a torre seria atacada de perto. Afaste-a pela coluna, sem largar o corte.",
+          "highlights": [
+            "d1"
+          ],
+          "expects": [
+            {
+              "moves": [
+                "d6d1"
+              ],
+              "reply": "c7b7",
+              "next": "n11",
+              "feedback": "A torre se afasta e continua cortando a coluna d. Do longe ela é intocável."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "d6c6"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "d6d7"
+              ],
+              "errorId": "entrega-torre"
+            }
+          ],
+          "winningMoves": [
+            "b5c5",
+            "d6a6",
+            "d6b6",
+            "d6c6",
+            "d6d1",
+            "d6d2",
+            "d6d3",
+            "d6d4",
+            "d6d5",
+            "d6e6",
+            "d6f6",
+            "d6g6",
+            "d6h6"
+          ]
+        },
+        "n11": {
+          "fen": "8/1k6/8/1K6/8/8/8/3R4 w - - 20 11",
+          "hint": "Agora corte uma coluna a mais: leve a torre para a coluna ao lado do rei preto.",
+          "highlights": [
+            "c1"
+          ],
+          "expects": [
+            {
+              "moves": [
+                "d1c1"
+              ],
+              "reply": "b7a7",
+              "next": "n12",
+              "feedback": "Sobraram duas colunas para o rei preto — e ele já está na da borda."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "d1d7"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "b5a4"
+              ],
+              "errorId": "rei-distante"
+            }
+          ],
+          "winningMoves": [
+            "b5a4",
+            "b5a5",
+            "b5b4",
+            "b5c4",
+            "b5c5",
+            "d1a1",
+            "d1b1",
+            "d1c1",
+            "d1d2",
+            "d1d3",
+            "d1d4",
+            "d1d5",
+            "d1d6",
+            "d1d7",
+            "d1d8",
+            "d1e1",
+            "d1f1",
+            "d1g1",
+            "d1h1"
+          ]
+        },
+        "n12": {
+          "fen": "8/k7/8/1K6/8/8/8/2R5 w - - 22 12",
+          "hint": "Rei para a frente. É ele quem tira as últimas casas.",
+          "highlights": [
+            "c6"
+          ],
+          "expects": [
+            {
+              "moves": [
+                "b5c6"
+              ],
+              "reply": "a7a8",
+              "next": "n13",
+              "feedback": "O rei preto é empurrado para o canto."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "c1c7"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "b5a4"
+              ],
+              "errorId": "rei-distante"
+            }
+          ],
+          "winningMoves": [
+            "b5a4",
+            "b5a5",
+            "b5b4",
+            "b5c4",
+            "b5c5",
+            "b5c6",
+            "c1a1",
+            "c1b1",
+            "c1c2",
+            "c1c3",
+            "c1c4",
+            "c1c5",
+            "c1c6",
+            "c1c7",
+            "c1c8",
+            "c1d1",
+            "c1e1",
+            "c1f1",
+            "c1g1",
+            "c1h1"
+          ]
+        },
+        "n13": {
+          "fen": "k7/8/2K5/8/8/8/8/2R5 w - - 24 13",
+          "hint": "Fique exatamente na frente do rei preto, com uma casa de distância.",
+          "highlights": [
+            "c7"
+          ],
+          "expects": [
+            {
+              "moves": [
+                "c6c7"
+              ],
+              "reply": "a8a7",
+              "next": "n14",
+              "feedback": "Oposição feita: o rei preto perde b7 e b8 e só tem a7."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "c1a1"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "c6b5"
+              ],
+              "errorId": "rei-distante"
+            }
+          ],
+          "winningMoves": [
+            "c1a1",
+            "c1b1",
+            "c1c2",
+            "c1c3",
+            "c1c4",
+            "c1c5",
+            "c1d1",
+            "c1e1",
+            "c1f1",
+            "c1g1",
+            "c1h1",
+            "c6b5",
+            "c6b6",
+            "c6c5",
+            "c6c7",
+            "c6d5",
+            "c6d6",
+            "c6d7"
+          ]
+        },
+        "n14": {
+          "fen": "8/k1K5/8/8/8/8/8/2R5 w - - 26 14",
+          "hint": "Agora sim: xeque na coluna da borda.",
+          "highlights": [
+            "a1"
+          ],
+          "expects": [
+            {
+              "moves": [
+                "c1a1"
+              ],
+              "feedback": "Xeque-mate. A torre dá o xeque pela coluna a e o seu rei cobre todas as fugas."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "c7d6"
+              ],
+              "errorId": "rei-distante"
+            }
+          ],
+          "winningMoves": [
+            "c1a1",
+            "c1b1",
+            "c1c2",
+            "c1c3",
+            "c1c4",
+            "c1c5",
+            "c1c6",
+            "c1d1",
+            "c1e1",
+            "c1f1",
+            "c1g1",
+            "c1h1",
+            "c7c6",
+            "c7c8",
+            "c7d6",
+            "c7d7",
+            "c7d8"
+          ]
+        }
+      }
+    },
+    "solo": {
+      "positionId": "pos-n0-rmate-fx-b",
+      "root": "s1",
+      "nodes": {
+        "s1": {
+          "fen": "k7/8/8/8/8/8/4K3/7R w - - 0 1",
+          "expects": [
+            {
+              "moves": [
+                "h1b1"
+              ],
+              "reply": "a8a7",
+              "next": "s2",
+              "feedback": "Corte feito: o rei preto está preso na coluna a."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "h1a1"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "e2d1"
+              ],
+              "errorId": "rei-distante"
+            }
+          ],
+          "winningMoves": [
+            "e2d1",
+            "e2d2",
+            "e2d3",
+            "e2e1",
+            "e2e3",
+            "e2f1",
+            "e2f2",
+            "e2f3",
+            "h1a1",
+            "h1b1",
+            "h1c1",
+            "h1d1",
+            "h1e1",
+            "h1f1",
+            "h1g1",
+            "h1h2",
+            "h1h3",
+            "h1h4",
+            "h1h5",
+            "h1h6",
+            "h1h7",
+            "h1h8"
+          ]
+        },
+        "s2": {
+          "fen": "8/k7/8/8/8/8/4K3/1R6 w - - 2 2",
+          "expects": [
+            {
+              "moves": [
+                "e2d3"
+              ],
+              "reply": "a7a6",
+              "next": "s3",
+              "feedback": "O rei branco começa a longa caminhada."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "b1a1"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "e2d1"
+              ],
+              "errorId": "rei-distante"
+            },
+            {
+              "moves": [
+                "b1b6"
+              ],
+              "errorId": "entrega-torre"
+            }
+          ],
+          "winningMoves": [
+            "b1a1",
+            "b1b2",
+            "b1b3",
+            "b1b4",
+            "b1b5",
+            "b1c1",
+            "b1d1",
+            "b1e1",
+            "b1f1",
+            "b1g1",
+            "b1h1",
+            "e2d1",
+            "e2d2",
+            "e2d3",
+            "e2e1",
+            "e2e3",
+            "e2f1",
+            "e2f2",
+            "e2f3"
+          ]
+        },
+        "s3": {
+          "fen": "8/8/k7/8/8/3K4/8/1R6 w - - 4 3",
+          "expects": [
+            {
+              "moves": [
+                "d3c4"
+              ],
+              "reply": "a6a5",
+              "next": "s4",
+              "feedback": "Mais perto. O rei preto desce pela borda."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "b1a1"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "d3c2"
+              ],
+              "errorId": "rei-distante"
+            },
+            {
+              "moves": [
+                "b1b5"
+              ],
+              "errorId": "entrega-torre"
+            }
+          ],
+          "winningMoves": [
+            "b1a1",
+            "b1b2",
+            "b1b3",
+            "b1b4",
+            "b1b8",
+            "b1c1",
+            "b1d1",
+            "b1e1",
+            "b1f1",
+            "b1g1",
+            "b1h1",
+            "d3c2",
+            "d3c3",
+            "d3c4",
+            "d3d2",
+            "d3d4",
+            "d3e2",
+            "d3e3",
+            "d3e4"
+          ]
+        },
+        "s4": {
+          "fen": "8/8/8/k7/2K5/8/8/1R6 w - - 6 4",
+          "expects": [
+            {
+              "moves": [
+                "b1b2"
+              ],
+              "reply": "a5a6",
+              "next": "s5",
+              "feedback": "A torre se afasta do rei preto e continua cortando a coluna b."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "b1b5"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "c4d3"
+              ],
+              "errorId": "rei-distante"
+            },
+            {
+              "moves": [
+                "b1b6"
+              ],
+              "errorId": "entrega-torre"
+            }
+          ],
+          "winningMoves": [
+            "b1a1",
+            "b1b2",
+            "b1b3",
+            "b1b4",
+            "b1b5",
+            "b1b7",
+            "b1b8",
+            "b1c1",
+            "b1d1",
+            "b1e1",
+            "b1f1",
+            "b1g1",
+            "b1h1",
+            "c4b3",
+            "c4c3",
+            "c4c5",
+            "c4d3",
+            "c4d4",
+            "c4d5"
+          ]
+        },
+        "s5": {
+          "fen": "8/8/k7/8/2K5/8/1R6/8 w - - 8 5",
+          "expects": [
+            {
+              "moves": [
+                "c4c5"
+              ],
+              "reply": "a6a7",
+              "next": "s6",
+              "feedback": "O rei branco toma a frente e o preto tem de recuar."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "b2a2"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "c4c3"
+              ],
+              "errorId": "rei-distante"
+            },
+            {
+              "moves": [
+                "b2b6"
+              ],
+              "errorId": "entrega-torre"
+            }
+          ],
+          "winningMoves": [
+            "b2a2",
+            "b2b1",
+            "b2b3",
+            "b2b4",
+            "b2b5",
+            "b2b8",
+            "b2c2",
+            "b2d2",
+            "b2e2",
+            "b2f2",
+            "b2g2",
+            "b2h2",
+            "c4b3",
+            "c4b4",
+            "c4c3",
+            "c4c5",
+            "c4d3",
+            "c4d4",
+            "c4d5"
+          ]
+        },
+        "s6": {
+          "fen": "8/k7/8/2K5/8/8/1R6/8 w - - 10 6",
+          "expects": [
+            {
+              "moves": [
+                "c5c6"
+              ],
+              "reply": "a7a8",
+              "next": "s7",
+              "feedback": "O rei preto é empurrado para o canto."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "b2a2"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "c5c4"
+              ],
+              "errorId": "rei-distante"
+            },
+            {
+              "moves": [
+                "b2b7"
+              ],
+              "errorId": "entrega-torre"
+            }
+          ],
+          "winningMoves": [
+            "b2a2",
+            "b2b1",
+            "b2b3",
+            "b2b4",
+            "b2b5",
+            "b2b6",
+            "b2c2",
+            "b2d2",
+            "b2e2",
+            "b2f2",
+            "b2g2",
+            "b2h2",
+            "c5b4",
+            "c5b5",
+            "c5c4",
+            "c5c6",
+            "c5d4",
+            "c5d5",
+            "c5d6"
+          ]
+        },
+        "s7": {
+          "fen": "k7/8/2K5/8/8/8/1R6/8 w - - 12 7",
+          "expects": [
+            {
+              "moves": [
+                "c6c7"
+              ],
+              "reply": "a8a7",
+              "next": "s8",
+              "feedback": "Oposição: o rei preto só tem a7."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "b2a2"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "c6c5"
+              ],
+              "errorId": "rei-distante"
+            },
+            {
+              "moves": [
+                "b2b7"
+              ],
+              "errorId": "entrega-torre"
+            }
+          ],
+          "winningMoves": [
+            "b2a2",
+            "b2b1",
+            "b2b3",
+            "b2b4",
+            "b2b5",
+            "b2b6",
+            "b2c2",
+            "b2d2",
+            "b2e2",
+            "b2f2",
+            "b2g2",
+            "b2h2",
+            "c6b5",
+            "c6b6",
+            "c6c5",
+            "c6c7",
+            "c6d5",
+            "c6d6",
+            "c6d7"
+          ]
+        },
+        "s8": {
+          "fen": "8/k1K5/8/8/8/8/1R6/8 w - - 14 8",
+          "expects": [
+            {
+              "moves": [
+                "b2a2"
+              ],
+              "feedback": "Xeque-mate — a mesma receita, numa posição que você nunca tinha visto."
+            }
+          ],
+          "mistakes": [
+            {
+              "moves": [
+                "b2b7"
+              ],
+              "errorId": "cheque-inutil"
+            },
+            {
+              "moves": [
+                "c7d6"
+              ],
+              "errorId": "rei-distante"
+            }
+          ],
+          "winningMoves": [
+            "b2a2",
+            "b2b1",
+            "b2b3",
+            "b2b4",
+            "b2b5",
+            "b2b6",
+            "b2b7",
+            "b2b8",
+            "b2c2",
+            "b2d2",
+            "b2e2",
+            "b2f2",
+            "b2g2",
+            "b2h2",
+            "c7c6",
+            "c7c8",
+            "c7d6",
+            "c7d7",
+            "c7d8"
+          ]
+        }
+      },
+      "moveLimit": 12
+    },
+    "practice": {
+      "positionId": "pos-n0-rmate-fx-c",
+      "goal": "win",
+      "engine": {
+        "skill": 3,
+        "moveTimeMs": 300
+      }
+    },
+    "review": {
+      "reviewPositionIds": [
+        "pos-n0-rmate-fx-d"
+      ]
+    }
+  }
+}
