@@ -13,14 +13,17 @@ concurrency:
 
 jobs:
   gates:
-    name: Gates (typecheck, lint, build)
+    name: Gates (typecheck, conteúdo, lint, build)
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
 
       - uses: actions/setup-node@v5
         with:
-          node-version: 22
+          # 24: os scripts do gate são TypeScript rodando direto no Node, sem
+          # tsx — precisam do type stripping ligado por padrão. É a mesma
+          # versão usada na máquina da autoria.
+          node-version: 24
           cache: npm
 
       - name: Instalar dependências
@@ -28,6 +31,12 @@ jobs:
 
       - name: Typecheck
         run: npm run typecheck
+
+      # Gate de conteúdo (plano da F1, §3.4). Roda OFFLINE, a partir do cache
+      # de tablebase versionado em content/tablebase-cache/: a rede só existe
+      # na autoria. Nunca acrescente --refresh-cache aqui.
+      - name: Validar conteúdo
+        run: npm run validate:content
 
       - name: Lint
         run: npm run lint
