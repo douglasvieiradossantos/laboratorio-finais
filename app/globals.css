@@ -1,0 +1,79 @@
+@import "tailwindcss";
+
+@theme inline {
+  --font-sans: var(--font-sans);
+}
+
+html {
+  /* Evita o zoom por duplo toque atrapalhar o arraste das peças no celular. */
+  touch-action: manipulation;
+}
+
+body {
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* --------------------------------------------------------------------------
+   Ajustes no CSS do chessground
+
+   O tabuleiro do Lichess nasceu para um tamanho fixo, e o CSS que vem no
+   pacote traz deslocamentos em pixels calibrados para aquele tamanho. Aqui o
+   tabuleiro é fluido (ocupa a largura disponível, do celular ao desktop),
+   então esses pixels fixos saem do lugar. Tudo abaixo troca pixel por
+   porcentagem, que escala junto com a casa.
+   -------------------------------------------------------------------------- */
+
+.cg-wrap {
+  box-sizing: content-box;
+}
+
+/* O chessground arredonda o tabuleiro para um múltiplo de 8 pixels (para as
+   casas ficarem nítidas), o que deixa uma sobra de até 7px. Sem isto a sobra
+   fica toda à direita e embaixo, e a margem do tabuleiro sai torta. */
+.cg-wrap cg-container {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.cg-wrap coords {
+  /* ---cg-width é a largura real do tabuleiro, publicada pelo próprio
+     chessground (o nome tem três traços mesmo). Dividida por 8 dá a casa. */
+  font-size: clamp(9px, calc(var(---cg-width, 512px) / 8 * 0.28), 14px);
+  font-weight: 600;
+  line-height: 1;
+  opacity: 1;
+}
+
+/* O CSS do pacote alterna texto branco e escuro conforme a casa, e a alternância
+   erra de casa neste posicionamento: metade dos rótulos sai branco sobre casa
+   clara (contraste 1,4:1, ilegível). No tabuleiro marrom uma tinta escura só
+   resolve os dois casos — 11:1 na casa clara, 7:1 na escura — e ainda fica
+   igual quando o aluno gira o tabuleiro.
+   O !important é proposital: as regras do pacote são mais específicas que
+   qualquer seletor razoável escrito aqui. */
+.cg-wrap coords coord {
+  color: rgba(38, 34, 28, 0.9) !important;
+}
+
+/* Números das linhas: no canto superior esquerdo da casa da coluna a. */
+.cg-wrap coords.ranks {
+  top: 0;
+  left: 0;
+  width: 12.5%;
+  box-sizing: border-box;
+  padding: 0.6% 0 0 0.8%;
+}
+
+.cg-wrap coords.ranks coord {
+  transform: none;
+}
+
+/* Letras das colunas: centradas na base de cada coluna, minúsculas. */
+.cg-wrap coords.files {
+  left: 0;
+  bottom: 0.6%;
+  width: 100%;
+  height: auto;
+  text-transform: none;
+}
