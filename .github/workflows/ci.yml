@@ -38,6 +38,11 @@ jobs:
       - name: Validar conteúdo
         run: npm run validate:content
 
+      # Testes da lógica pura do motor: o julgamento do lance do aluno (§3.2)
+      # e os textos de recusa. Sem navegador — rodam no test runner do Node.
+      - name: Testes
+        run: npm test
+
       - name: Lint
         run: npm run lint
 

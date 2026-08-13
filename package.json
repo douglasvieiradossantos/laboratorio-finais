@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "typecheck": "next typegen && tsc --noEmit",
+    "test": "node --test \"lib/**/*.test.ts\"",
     "validate:content": "node scripts/validate-content.ts",
     "validate:mutations": "node scripts/mutation-check.ts"
   },

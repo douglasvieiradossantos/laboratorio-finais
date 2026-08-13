@@ -3,6 +3,7 @@
 import { useEffect, useRef } from "react";
 import { Chessground } from "@lichess-org/chessground";
 import type { Api } from "@lichess-org/chessground/api";
+import type { DrawShape } from "@lichess-org/chessground/draw";
 import type { Color, Dests, Key } from "@lichess-org/chessground/types";
 
 export type ChessBoardProps = {
@@ -26,6 +27,14 @@ export type ChessBoardProps = {
    * arrasta uma peça, o chessground já a moveu na tela, e o lance é desfeito.
    */
   revision?: number;
+  /**
+   * Setas e casas destacadas desenhadas *pelo motor* (etapas 2 a 4): seta é
+   * `{ orig, dest }`, destaque de casa é `{ orig }` sozinho. Vão pelo canal
+   * `setAutoShapes` do chessground — a camada dos desenhos automáticos, que o
+   * motor troca inteira a cada estado. O canal de desenho do usuário (`enabled`)
+   * continua desligado; o que liga aqui é só a *exibição* (`visible`).
+   */
+  shapes?: DrawShape[];
   onMove?: (orig: Key, dest: Key) => void;
 };
 
@@ -43,6 +52,7 @@ export function ChessBoard({
   check = false,
   viewOnly = false,
   revision = 0,
+  shapes,
   onMove,
 }: ChessBoardProps) {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -75,7 +85,7 @@ export function ChessBoard({
         },
       },
       draggable: { showGhost: true },
-      drawable: { enabled: false },
+      drawable: { enabled: false, visible: true },
     });
     apiRef.current = api;
 
@@ -102,6 +112,12 @@ export function ChessBoard({
       },
     });
   }, [fen, orientation, turnColor, dests, lastMove, check, viewOnly, revision]);
+
+  // Depois do `set` acima: `setAutoShapes` redesenha a camada inteira, então
+  // uma lista vazia é o jeito de apagar o que havia.
+  useEffect(() => {
+    apiRef.current?.setAutoShapes(shapes ?? []);
+  }, [shapes, fen, revision]);
 
   return (
     <div

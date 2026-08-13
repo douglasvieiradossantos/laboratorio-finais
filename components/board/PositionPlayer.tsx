@@ -1,11 +1,13 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { Chess } from "chess.js";
+import type { DrawShape } from "@lichess-org/chessground/draw";
 import type { Color, Dests, Key } from "@lichess-org/chessground/types";
 import { ChessBoard } from "./ChessBoard";
 import { PromotionPicker, type PromotionChoice } from "./PromotionPicker";
 import { legalDests, toBoardColor } from "@/lib/chess/dests";
+import { refusalReason } from "@/lib/chess/refusal";
 import { readOutcome, type GameOutcome } from "@/lib/chess/status";
 
 type Snapshot = {
@@ -47,6 +49,32 @@ export function PositionPlayer({
   const [view, setView] = useState<Snapshot>(() => snapshot(game, null, 0));
   const [flipped, setFlipped] = useState(false);
   const [pending, setPending] = useState<{ orig: Key; dest: Key } | null>(null);
+  /**
+   * Pendência da F0 fechada aqui: até agora um lance recusado devolvia a peça
+   * em silêncio. Toda recusa passa a dizer por que foi recusada, no mesmo
+   * `aria-live` do estado da partida, com reforço visual breve na casa.
+   */
+  const [refusal, setRefusal] = useState<{
+    text: string;
+    square?: Key;
+    seq: number;
+    tone: "bad" | "neutral";
+  } | null>(null);
+
+  // O reforço visual na casa é breve; o texto fica até o próximo lance.
+  useEffect(() => {
+    if (!refusal?.square) return;
+    const handle = setTimeout(
+      () => setRefusal((current) => (current ? { ...current, square: undefined } : current)),
+      1400,
+    );
+    return () => clearTimeout(handle);
+  }, [refusal?.seq, refusal?.square]);
+
+  const shapes: DrawShape[] = useMemo(
+    () => (refusal?.square ? [{ orig: refusal.square, brush: "red" }] : []),
+    [refusal],
+  );
 
   const publish = useCallback(
     (lastMove: [Key, Key] | null) => {
@@ -62,10 +90,18 @@ export function PositionPlayer({
         .filter((move) => move.from === orig && move.to === dest);
 
       if (candidates.length === 0) {
-        // O chessground já mexeu a peça na tela; a revisão a traz de volta.
+        // O chessground já mexeu a peça na tela; a revisão a traz de volta —
+        // e agora a recusa também diz, por escrito, o que houve.
+        setRefusal((previous) => ({
+          text: refusalReason(game, orig, dest),
+          square: dest,
+          seq: (previous?.seq ?? 0) + 1,
+          tone: "bad",
+        }));
         publish(view.lastMove);
         return;
       }
+      setRefusal(null);
       if (candidates.some((move) => move.promotion)) {
         setPending({ orig, dest });
         return;
@@ -88,6 +124,12 @@ export function PositionPlayer({
 
   const cancelPromotion = useCallback(() => {
     setPending(null);
+    // Cancelar também devolve a peça — e também não pode ser em silêncio.
+    setRefusal((previous) => ({
+      text: "Promoção cancelada: o lance não foi feito.",
+      seq: (previous?.seq ?? 0) + 1,
+      tone: "neutral",
+    }));
     publish(view.lastMove);
   }, [publish, view.lastMove]);
 
@@ -95,6 +137,7 @@ export function PositionPlayer({
     if (game.history().length === 0) return;
     game.undo();
     setPending(null);
+    setRefusal(null);
     const previous = game.history({ verbose: true }).at(-1);
     publish(previous ? [previous.from as Key, previous.to as Key] : null);
   }, [game, publish]);
@@ -102,6 +145,7 @@ export function PositionPlayer({
   const reset = useCallback(() => {
     game.load(startFen);
     setPending(null);
+    setRefusal(null);
     publish(null);
   }, [game, publish, startFen]);
 
@@ -128,6 +172,7 @@ export function PositionPlayer({
           lastMove={view.lastMove}
           check={view.check}
           revision={view.revision}
+          shapes={shapes}
           onMove={handleMove}
         />
         {pending && (
@@ -139,11 +184,19 @@ export function PositionPlayer({
         )}
       </div>
 
+      {/* Uma região viva só: estado da partida e recusa falam pelo mesmo lugar.
+          O `key` troca o nó a cada recusa — sem isso, insistir no mesmo lance
+          errado não geraria mutação e o leitor de tela ficaria mudo. */}
       <p
         aria-live="polite"
-        className="text-center text-sm font-medium text-slate-300"
+        role="status"
+        className={`text-center text-sm font-medium ${
+          refusal?.tone === "bad" ? "text-rose-300" : "text-slate-300"
+        }`}
       >
-        {statusText}
+        <span key={refusal ? `refusal-${refusal.seq}` : "status"}>
+          {refusal ? refusal.text : statusText}
+        </span>
       </p>
 
       <div className="flex flex-wrap justify-center gap-2">

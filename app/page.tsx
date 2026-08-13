@@ -1,33 +1,75 @@
-import { PositionPlayer } from "@/components/board/PositionPlayer";
+import Link from "next/link";
+import { lessonIndex } from "@/lib/lesson/content";
 
 /**
- * F0 não tem conteúdo de curso: esta é a posição de prova de vida — rei e peão
- * contra rei, brancas na vez, com as pretas segurando a oposição.
+ * Índice das 3 competências de N0 (§0.3 do plano da F1: navegação mínima; a
+ * trilha com desbloqueio pelo grafo é da F2). Os ids são os oficiais do
+ * currículo — as aulas que ainda não têm arquivo em `content/lessons/`
+ * aparecem aqui como pendentes, em vez de sumirem da lista.
  */
-const KP_VS_K = "8/8/8/4k3/8/4K3/4P3/8 w - - 0 1";
+const N0 = [
+  { id: "N0-Q-MATE", title: "Mate de dama e rei" },
+  { id: "N0-R-MATE", title: "Mate de torre e rei" },
+  { id: "N0-LADDER", title: "Mate da escadinha" },
+];
 
 export default function Home() {
+  const published = new Map(lessonIndex().map((item) => [item.id, item]));
+
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-8 sm:py-12">
       <header className="flex flex-col gap-2">
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-emerald-400">
-          Fase 0 — fundação
+          Nível 0 — os mates elementares
         </p>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">
-          Laboratório de Finais
-        </h1>
+        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Laboratório de Finais</h1>
         <p className="max-w-prose text-sm leading-relaxed text-slate-400">
-          Prova de vida do tabuleiro: rei e peão contra rei, com as regras
-          validadas de verdade. Ainda não há aula, trilha nem progresso — só a
-          peça de software que todas as aulas vão usar.
+          Cada competência é uma aula em etapas: ver o objetivo, acompanhar a
+          técnica, executar com ajuda e executar sozinho. Você aprende no
+          tabuleiro, não no vídeo.
         </p>
       </header>
 
-      <PositionPlayer startFen={KP_VS_K} />
+      <ul className="flex flex-col gap-3">
+        {N0.map((item) => {
+          const lesson = published.get(item.id);
+          if (!lesson) {
+            return (
+              <li
+                key={item.id}
+                className="rounded-lg border border-white/5 bg-slate-900/40 px-4 py-4 text-slate-500"
+              >
+                <p className="text-sm font-medium">{item.title}</p>
+                <p className="mt-1 text-xs">
+                  <span className="font-mono">{item.id}</span> — ainda sem posições garimpadas.
+                </p>
+              </li>
+            );
+          }
+          return (
+            <li key={item.id}>
+              <Link
+                href={`/aula/${item.id}`}
+                className="flex min-h-16 flex-col justify-center rounded-lg border border-white/10 bg-slate-900 px-4 py-4 transition hover:border-emerald-500/40 hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+              >
+                <p className="text-sm font-semibold text-slate-100">{lesson.title}</p>
+                <p className="mt-1 text-xs text-slate-400">
+                  <span className="font-mono">{lesson.id}</span> — {lesson.stages} etapas
+                </p>
+              </Link>
+            </li>
+          );
+        })}
+      </ul>
 
       <footer className="mt-auto border-t border-white/5 pt-4 text-xs text-slate-500">
-        Você move os dois lados. Lances ilegais são recusados; mate, afogamento
-        e material insuficiente aparecem no estado abaixo do tabuleiro.
+        As posições desta fase ainda são fixtures técnicas, marcadas como tal e
+        proibidas de publicar — o garimpo com proveniência entra no próximo
+        bloco.{" "}
+        <Link href="/tabuleiro" className="underline transition hover:text-slate-300">
+          Tabuleiro livre
+        </Link>
+        .
       </footer>
     </main>
   );
