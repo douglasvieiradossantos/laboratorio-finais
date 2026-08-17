@@ -1792,7 +1792,7 @@
       "positionId": "pos-n0-rmate-fx-c",
       "goal": "win",
       "engine": {
-        "skill": 3,
+        "skill": 20,
         "moveTimeMs": 300
       }
     },

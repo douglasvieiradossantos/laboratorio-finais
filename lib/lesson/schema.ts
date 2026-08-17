@@ -210,8 +210,43 @@ export const practiceStageSchema = z.strictObject({
   positionId: positionIdSchema,
   goal: z.enum(["win", "draw"]),
   engine: z.strictObject({
-    /** Skill Level do Stockfish: 0 (fraquíssimo) a 20 (força total). */
+    /**
+     * Skill Level do Stockfish: 0 (fraquíssimo) a 20 (força total).
+     *
+     * **Em final de mate forçado, use 20.** Medido em 2026-08-17 na posição de
+     * prática desta aula (KRK, defesa perfeita da tablebase = 23 meios-lances),
+     * três partidas por nível contra o mesmo atacante:
+     *
+     * | skill | meios-lances até o mate | % da defesa perfeita |
+     * |---|---|---|
+     * | 0  | 9, 15, 17  | 59% |
+     * | 3  | 7, 11, 11  | 42% |
+     * | 6  | 7, 7, 15   | 42% |
+     * | 10 | 17, 11, 9  | 54% |
+     * | 20 | 21, 23, 21 | **94%** |
+     *
+     * A lição não é "3 é pouco": é que **abaixo de 20 o Skill Level não dá um
+     * defensor mais fraco, dá um defensor aleatório** — 0, 3, 6 e 10 são
+     * indistinguíveis dentro do ruído. O mecanismo do Stockfish é escolher às
+     * vezes um lance que não é o melhor, e num mate forçado o defensor não tem
+     * plano a executar: a única tarefa dele é adiar o mate. Aleatorizar essa
+     * única tarefa apaga a resistência inteira e a gradação some junto.
+     *
+     * O critério é o mesmo que a §3.4 do plano já impõe ao defensor escrito na
+     * autoria das etapas 3 e 4 — "não encurtar o mate em mais de 2 lances em
+     * relação à defesa perfeita, para o aluno não treinar contra um defensor
+     * bobo". Skill 20 cabe nele; skill 3 deixava a etapa 5, que deveria ser o
+     * teste mais duro, com o defensor mais fraco da aula.
+     *
+     * Enfraquecer continua fazendo sentido onde o computador tem plano próprio
+     * — uma aula em que o aluno precise *empatar*, por exemplo. Por isso o
+     * campo é por aula.
+     */
     skill: z.int().min(0).max(20),
+    /**
+     * Teto de busca por lance. É ele, e não a força, que governa o tempo na
+     * tela: a 300 ms o skill 20 responde em 300 ms como o skill 3 respondia.
+     */
     moveTimeMs: z.int().min(50).max(5000),
   }),
 });
