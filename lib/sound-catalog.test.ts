@@ -1,5 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
+import { REPLY_DELAY_MS } from "./lesson/timing.ts";
 import { CATALOG } from "./sound-catalog.ts";
 // `lib/sound.ts` importa limpo no Node: no topo do módulo não há acesso a
 // `window` nem a WebAudio — tudo isso mora dentro de função. É o que permite ao
@@ -17,9 +18,6 @@ import { VARIANTS } from "./sound.ts";
  * dá um som que a página não sabe nomear. Foi essa a disciplina que a camada de
  * amostras tinha para os arquivos, e ela sobreviveu à remoção dela.
  */
-
-/** Intervalo entre o lance do aluno e a resposta do defensor (`TreeStage`). */
-const REPLY_DELAY_MS = 620;
 
 test("os seis efeitos existem, uma vez cada", () => {
   const nomes = CATALOG.map((effect) => effect.name);

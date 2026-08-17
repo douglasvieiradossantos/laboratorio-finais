@@ -71,9 +71,9 @@ export type Effect = {
   when: string;
   /**
    * Duração máxima aceita. Para `lance`, `captura` e `xeque` o teto real é o
-   * `REPLY_DELAY_MS = 620` do `TreeStage`: som mais longo que o intervalo entre o
-   * lance do aluno e a resposta do defensor transforma os dois lances em lama. É
-   * teto medível, não gosto.
+   * `REPLY_DELAY_MS` de `lib/lesson/timing.ts`: som mais longo que o intervalo
+   * entre o lance do aluno e a resposta do defensor transforma os dois lances em
+   * lama. É teto medível, não gosto.
    */
   maxDurationMs: number;
   /**

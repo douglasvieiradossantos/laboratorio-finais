@@ -11,14 +11,12 @@ import { legalDests, toBoardColor } from "@/lib/chess/dests";
 import type { Lesson, MoveTree, Position } from "@/lib/lesson/schema";
 import { judgeMove, throwsWinAway, toUci } from "@/lib/lesson/tree";
 import { restingMessage, useLessonStore, type PanelMessage, type TreeKey } from "@/lib/lesson/store";
+import { REPLY_DELAY_MS } from "@/lib/lesson/timing";
 import { playComplete, playForMove, playRefusal, playSuccess } from "@/lib/sound";
 import { Confetti } from "./Confetti";
 import { FeedbackPanel } from "./FeedbackPanel";
 import { LessonButton } from "./LessonButton";
 import { PulseRing } from "./PulseRing";
-
-/** Tempo que a resposta do defensor espera, para o aluno ver o lance dele. */
-const REPLY_DELAY_MS = 620;
 
 /**
  * Etapas 3 e 4 — a árvore de lances (plano da F1, §3). A mesma mecânica serve

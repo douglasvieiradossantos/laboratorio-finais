@@ -85,6 +85,7 @@ plantada do `validate:mutations`.
 | [`@lichess-org/chessground`](https://github.com/lichess-org/chessground) | O tabuleiro (o mesmo do Lichess) |
 | [`chess.js`](https://github.com/jhlywa/chess.js) | As regras: valida lances, gera FEN, detecta mate/afogamento |
 | Zustand | Estado da interface (ainda não usado na F0) |
+| [Stockfish 18](https://github.com/nmrugg/stockfish.js) (WebAssembly) | O adversário da etapa 5, em Web Worker — ver abaixo |
 | Vercel | Publicação |
 
 ### Licença das dependências
@@ -93,6 +94,31 @@ plantada do `validate:mutations`.
 JavaScript enviado ao navegador, o site distribuído fica sujeito à GPL. Isso
 está registrado aqui de propósito: se um dia o projeto precisar ser fechado ou
 licenciado de outro jeito, o tabuleiro é a peça a trocar.
+
+O **Stockfish** é **GPL-3.0** e entra pelo mesmo caminho: os dois arquivos de
+`public/engine/` são distribuídos junto com o site. Somam-se ao tabuleiro na
+mesma conclusão — a v1 é um projeto GPL, e fechar o código exigiria trocar as
+duas peças. A proveniência completa (versão exata, sha256, link para o fonte)
+está em [`public/engine/LEIA-ME.md`](public/engine/LEIA-ME.md).
+
+### O motor da etapa 5
+
+**Os arquivos do motor são versionados no repositório, e o pacote npm do
+Stockfish não é dependência.** O pacote `stockfish@18.0.8` ocupa 251 MB
+descompactados para entregar os 7,3 MB que usamos — 2,9%. Tomá-lo como
+dependência faria todo `npm ci` (CI a cada push, hospedagem a cada deploy)
+pagar os 251 MB, e o `postinstall` dele ainda copia uma variante de 107 MB que
+nunca seria servida. É a mesma disciplina de `content/tablebase-cache/`: o
+artefato determinístico entra no repositório para o CI não depender de rede.
+
+A variante é a **`lite-single`** — uma thread, sem `SharedArrayBuffer`. É o que
+dispensa os cabeçalhos `COOP/COEP` e mantém a etapa 5 funcionando em navegador
+de celular. Para um final de 3 ou 4 peças ela é canhão de sobra.
+
+`lib/engine/manifest.test.ts` confere tamanho e sha256 dos dois arquivos a cada
+`npm test`. Não é zelo: o `.gitattributes` abre com `* text=auto eol=lf`, e um
+binário sem isenção seria corrompido em silêncio no checkout — verde no
+repositório, quebrado no navegador do aluno. Por isso `public/engine/** binary`.
 
 ### Som: sintetizado, derivado de medição
 

@@ -2,6 +2,7 @@
 
 import { useCallback, useState, useSyncExternalStore } from "react";
 import { LessonButton } from "@/components/lesson/LessonButton";
+import { REPLY_DELAY_MS } from "@/lib/lesson/timing";
 import {
   CATALOG,
   type EffectName,
@@ -40,9 +41,8 @@ import {
  * verdade é uma linha de `chosenVariant` em `lib/sound-catalog.ts`.
  */
 
-/** A sequência da aula, com os mesmos 620 ms do `TreeStage`. */
+/** A sequência da aula, com o mesmo compasso das etapas jogáveis. */
 const SEQUENCIA: EffectName[] = ["lance", "lance", "captura", "xeque", "conclusao"];
-const REPLY_DELAY_MS = 620;
 
 const TOTAL_VARIANTES = CATALOG.reduce((total, effect) => total + effect.variants.length, 0);
 
