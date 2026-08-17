@@ -35,6 +35,14 @@ export type MoveVerdict =
       /** O lance ainda ganha? Vem de `winningMoves`, não do veredito. */
       preservesWin: boolean;
     }
+  /**
+   * A mesma técnica por outro caminho — só na etapa 3. O lance não é o do
+   * roteiro, mas aplica a ideia da aula (o gerador provou isso na autoria, com
+   * a caixa que ele deixa). O aluno é elogiado e a peça volta, para que a
+   * linha escrita continue valendo. Na etapa 4 este mesmo lance é aceito e a
+   * aula segue por um ramo gerado — lá ele nem chega aqui.
+   */
+  | { kind: "method-alternative"; uci: string; text: string; preservesWin: true }
   /** Fora das listas de autoria, mas a tablebase diz que ainda ganha. */
   | { kind: "off-method"; uci: string; text: string; preservesWin: true }
   /** Fora das listas e fora de `winningMoves`: joga a vitória fora. */
@@ -78,6 +86,17 @@ export function judgeMove(lesson: Lesson, node: TreeNode, uci: string): MoveVerd
       verdict: declared.verdict,
       text: declared.text,
       preservesWin,
+    };
+  }
+
+  // Depois do erro nomeado, de propósito: se a autoria marcou o lance como
+  // erro, o autor manda — mesmo que a geometria o aprove.
+  if (node.methodAlternatives?.includes(uci)) {
+    return {
+      kind: "method-alternative",
+      uci,
+      text: lesson.fallbacks.methodAlternative,
+      preservesWin: true,
     };
   }
 

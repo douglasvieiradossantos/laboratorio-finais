@@ -156,6 +156,21 @@ const MUTACOES: Mutation[] = [
       return "moveLimit da etapa 4 → 2, numa posição que precisa de 8 lances";
     },
   },
+  {
+    titulo: "ramo gerado adulterado (o lance equivalente sumiu do arquivo)",
+    codigo: "RAMO_DESATUALIZADO",
+    aplicar: async (dir) => {
+      const { file, json } = lerAula(dir);
+      const node = json.stages.solo.nodes.s1;
+      const antes = node.expects.length;
+      node.expects = node.expects.filter((e: { generated?: boolean }) => e.generated !== true);
+      gravar(file, json);
+      return (
+        `s1: o expect gerado foi apagado à mão (${antes} → ${node.expects.length} expects), ` +
+        "como faria quem editasse o JSON sem rodar o gerador"
+      );
+    },
+  },
 ];
 
 function rodarValidador(dir: string) {
@@ -184,7 +199,9 @@ const base = mkdtempSync(path.join(tmpdir(), "labfinais-mutacoes-"));
 let vermelhos = 0;
 
 console.log("");
-console.log("Teste do gate contra si mesmo — 8 mutações plantadas (§3.4 do plano da F1)");
+console.log(
+  `Teste do gate contra si mesmo — ${MUTACOES.length} mutações plantadas (§3.4 do plano da F1)`,
+);
 console.log(`${CINZA}cópia de trabalho em ${base}${NORMAL}`);
 console.log("");
 

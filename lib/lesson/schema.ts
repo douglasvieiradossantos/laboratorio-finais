@@ -125,6 +125,11 @@ export const expectSchema = z
     reply: uciSchema.optional(),
     next: nodeIdSchema.optional(),
     feedback: texto,
+    /**
+     * Escrito pelo gerador de ramos equivalentes, **nunca à mão**: marca o que
+     * o `validate:content --write` derivou e vai regravar na próxima rodada.
+     */
+    generated: z.literal(true).optional(),
   })
   .refine((e) => (e.reply === undefined) === (e.next === undefined), {
     message: "`reply` e `next` andam juntos: ou os dois, ou nenhum (nó terminal)",
@@ -140,13 +145,27 @@ export const treeNodeSchema = z.strictObject({
   fen: fenSchema,
   hint: texto.optional(),
   highlights: z.array(squareSchema).min(1).optional(),
-  expects: z.array(expectSchema).min(1).max(4),
+  /**
+   * O teto de 8 é o do arquivo inteiro, autorais + gerados. O teto da autoria
+   * é 4, e quem cobra isso é o gate (`EXPECTS_AUTORAIS_DEMAIS`): schema não
+   * sabe distinguir quem escreveu o quê antes de olhar o campo `generated`.
+   */
+  expects: z.array(expectSchema).min(1).max(8),
   mistakes: z.array(mistakeSchema).optional(),
+  /**
+   * Lances que aplicam a **mesma técnica** do roteiro sem serem o lance do
+   * roteiro. Só a etapa 3 os tem: lá o aluno é elogiado e a peça volta. Na
+   * etapa 4 o mesmo lance vira ramo de verdade, e o campo é proibido.
+   * **Gerado pelo validador — nunca escrito à mão.**
+   */
+  methodAlternatives: z.array(uciSchema).min(1).optional(),
   /**
    * Todos os lances legais do nó que preservam a vitória.
    * **Gerado pelo validador a partir da tablebase — nunca escrito à mão.**
    */
   winningMoves: z.array(uciSchema),
+  /** Nó inteiro derivado pelo gerador de ramos. Nunca escrito à mão. */
+  generated: z.literal(true).optional(),
 });
 
 const treeBaseSchema = z.strictObject({
@@ -212,6 +231,29 @@ export const lessonErrorSchema = z.strictObject({
   text: texto,
 });
 
+/**
+ * Os textos que o gerador de ramos copia para cada nó derivado, um por classe
+ * de lance da técnica (`lib/chess/technique.ts`). São **escritos pelo autor**:
+ * o gerador escolhe o lance, nunca a redação.
+ *
+ * Divergência declarada em relação ao plano da Parte D, que listava a chave
+ * `shrink`: a classe que existe de verdade é `other`, e ela cobre o lance de
+ * rei que **não** encurta a distância — tomar a oposição, que é metade da
+ * técnica. Sem essa chave, o `c6c7` do mate ficaria sem texto.
+ */
+export const generatedTemplatesSchema = z.strictObject({
+  /** Peça maior que encolhe a caixa. */
+  cut: texto,
+  /** Rei que se aproxima do rei inimigo. */
+  approach: texto,
+  /** Peça maior que mantém a caixa e o corte — o lance de espera. */
+  tempo: texto,
+  /** O lance que dá mate. */
+  mate: texto,
+  /** O resto: tipicamente o rei tomando a oposição. */
+  other: texto,
+});
+
 export const lessonSchema = z.strictObject({
   /** ID editorial oficial do currículo (ex.: N0-R-MATE). Nunca renumerar. */
   id: z.string().regex(/^N[0-9]+-[A-Z0-9-]+$/, "id de aula fora do padrão (ex.: N0-R-MATE)"),
@@ -228,7 +270,14 @@ export const lessonSchema = z.strictObject({
   fallbacks: z.strictObject({
     winningOffMethod: texto,
     losesWin: texto,
+    /** O elogio da etapa 3 quando o lance é a mesma técnica por outro caminho. */
+    methodAlternative: texto,
   }),
+  /**
+   * Textos dos ramos gerados. Opcional aqui porque nem toda aula gera ramo;
+   * o gate exige (`TEMPLATE_FALTANDO`) assim que algum ramo é gerado.
+   */
+  generatedTemplates: generatedTemplatesSchema.optional(),
   /** Nem toda aula tem todas as etapas — cada bloco é opcional. */
   stages: z.strictObject({
     objective: objectiveStageSchema.optional(),
@@ -259,6 +308,7 @@ export type SoloStage = z.infer<typeof soloStageSchema>;
 export type PracticeStage = z.infer<typeof practiceStageSchema>;
 export type ReviewStage = z.infer<typeof reviewStageSchema>;
 export type LessonError = z.infer<typeof lessonErrorSchema>;
+export type GeneratedTemplates = z.infer<typeof generatedTemplatesSchema>;
 export type Lesson = z.infer<typeof lessonSchema>;
 
 /** Uma árvore de lances, na forma comum à etapa 3 e à etapa 4. */

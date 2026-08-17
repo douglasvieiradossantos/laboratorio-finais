@@ -20,7 +20,15 @@
   },
   "fallbacks": {
     "winningOffMethod": "Esse lance ainda ganha, mas não é o método da aula. Volte e tente o lance da técnica.",
-    "losesWin": "Esse lance joga a vitória fora. Volte e tente de novo."
+    "losesWin": "Esse lance joga a vitória fora. Volte e tente de novo.",
+    "methodAlternative": "Esse lance é a mesma técnica por outro caminho: ele corta tão bem quanto o da aula. Aqui a linha escrita continua pelo lance do roteiro — mas guarde essa ideia, porque na etapa sem ajuda ela vale."
+  },
+  "generatedTemplates": {
+    "cut": "Corte feito: a caixa do rei preto ficou menor.",
+    "approach": "O rei branco se aproxima — é ele quem fecha a caixa.",
+    "tempo": "A torre espera sem largar o corte: a caixa continua do mesmo tamanho, e agora é a vez do rei preto se mexer.",
+    "mate": "Xeque-mate. A mesma receita chegou ao fim por outro caminho.",
+    "other": "O rei toma a posição: sem se aproximar, ele tira as casas que sobravam."
   },
   "stages": {
     "objective": {
@@ -1034,6 +1042,15 @@
               "reply": "a8a7",
               "next": "s2",
               "feedback": "Corte feito: o rei preto está preso na coluna a."
+            },
+            {
+              "moves": [
+                "h1h7"
+              ],
+              "reply": "a8b8",
+              "next": "g1",
+              "feedback": "Corte feito: a caixa do rei preto ficou menor.",
+              "generated": true
             }
           ],
           "mistakes": [
@@ -1444,6 +1461,329 @@
             "c7d7",
             "c7d8"
           ]
+        },
+        "g1": {
+          "fen": "1k6/7R/8/8/8/8/4K3/8 w - - 2 2",
+          "expects": [
+            {
+              "moves": [
+                "e2d2"
+              ],
+              "reply": "b8a8",
+              "next": "g2",
+              "feedback": "O rei branco se aproxima — é ele quem fecha a caixa.",
+              "generated": true
+            }
+          ],
+          "winningMoves": [
+            "e2d1",
+            "e2d2",
+            "e2d3",
+            "e2e1",
+            "e2e3",
+            "e2f1",
+            "e2f2",
+            "e2f3",
+            "h7d7",
+            "h7e7",
+            "h7f7",
+            "h7g7",
+            "h7h1",
+            "h7h2",
+            "h7h3",
+            "h7h4",
+            "h7h5",
+            "h7h6",
+            "h7h8"
+          ],
+          "generated": true
+        },
+        "g2": {
+          "fen": "k7/7R/8/8/8/8/3K4/8 w - - 4 3",
+          "expects": [
+            {
+              "moves": [
+                "d2c3"
+              ],
+              "reply": "a8b8",
+              "next": "g3",
+              "feedback": "O rei branco se aproxima — é ele quem fecha a caixa.",
+              "generated": true
+            }
+          ],
+          "winningMoves": [
+            "d2c1",
+            "d2c2",
+            "d2c3",
+            "d2d1",
+            "d2d3",
+            "d2e1",
+            "d2e2",
+            "d2e3",
+            "h7c7",
+            "h7d7",
+            "h7e7",
+            "h7f7",
+            "h7g7",
+            "h7h1",
+            "h7h2",
+            "h7h3",
+            "h7h4",
+            "h7h5",
+            "h7h6",
+            "h7h8"
+          ],
+          "generated": true
+        },
+        "g3": {
+          "fen": "1k6/7R/8/8/8/2K5/8/8 w - - 6 4",
+          "expects": [
+            {
+              "moves": [
+                "c3c4"
+              ],
+              "reply": "b8c8",
+              "next": "g4",
+              "feedback": "O rei branco se aproxima — é ele quem fecha a caixa.",
+              "generated": true
+            }
+          ],
+          "winningMoves": [
+            "c3b2",
+            "c3b3",
+            "c3b4",
+            "c3c2",
+            "c3c4",
+            "c3d2",
+            "c3d3",
+            "c3d4",
+            "h7d7",
+            "h7e7",
+            "h7f7",
+            "h7g7",
+            "h7h1",
+            "h7h2",
+            "h7h3",
+            "h7h4",
+            "h7h5",
+            "h7h6",
+            "h7h8"
+          ],
+          "generated": true
+        },
+        "g4": {
+          "fen": "2k5/7R/8/8/2K5/8/8/8 w - - 8 5",
+          "expects": [
+            {
+              "moves": [
+                "c4d5"
+              ],
+              "reply": "c8d8",
+              "next": "g5",
+              "feedback": "O rei branco se aproxima — é ele quem fecha a caixa.",
+              "generated": true
+            }
+          ],
+          "winningMoves": [
+            "c4b3",
+            "c4b4",
+            "c4b5",
+            "c4c3",
+            "c4c5",
+            "c4d3",
+            "c4d4",
+            "c4d5",
+            "h7a7",
+            "h7e7",
+            "h7f7",
+            "h7g7",
+            "h7h1",
+            "h7h2",
+            "h7h3",
+            "h7h4",
+            "h7h5",
+            "h7h6",
+            "h7h8"
+          ],
+          "generated": true
+        },
+        "g5": {
+          "fen": "3k4/7R/8/3K4/8/8/8/8 w - - 10 6",
+          "expects": [
+            {
+              "moves": [
+                "d5e6"
+              ],
+              "reply": "d8c8",
+              "next": "g6",
+              "feedback": "O rei branco se aproxima — é ele quem fecha a caixa.",
+              "generated": true
+            }
+          ],
+          "winningMoves": [
+            "d5c4",
+            "d5c5",
+            "d5c6",
+            "d5d4",
+            "d5d6",
+            "d5e4",
+            "d5e5",
+            "d5e6",
+            "h7a7",
+            "h7b7",
+            "h7f7",
+            "h7g7",
+            "h7h1",
+            "h7h2",
+            "h7h3",
+            "h7h4",
+            "h7h5",
+            "h7h6",
+            "h7h8"
+          ],
+          "generated": true
+        },
+        "g6": {
+          "fen": "2k5/7R/4K3/8/8/8/8/8 w - - 12 7",
+          "expects": [
+            {
+              "moves": [
+                "e6d6"
+              ],
+              "reply": "c8b8",
+              "next": "g7",
+              "feedback": "O rei branco se aproxima — é ele quem fecha a caixa.",
+              "generated": true
+            }
+          ],
+          "winningMoves": [
+            "e6d5",
+            "e6d6",
+            "e6e5",
+            "e6e7",
+            "e6f5",
+            "e6f6",
+            "e6f7",
+            "h7a7",
+            "h7d7",
+            "h7e7",
+            "h7f7",
+            "h7g7",
+            "h7h1",
+            "h7h2",
+            "h7h3",
+            "h7h4",
+            "h7h5",
+            "h7h6",
+            "h7h8"
+          ],
+          "generated": true
+        },
+        "g7": {
+          "fen": "1k6/7R/3K4/8/8/8/8/8 w - - 14 8",
+          "expects": [
+            {
+              "moves": [
+                "d6c6"
+              ],
+              "reply": "b8a8",
+              "next": "g8",
+              "feedback": "O rei branco se aproxima — é ele quem fecha a caixa.",
+              "generated": true
+            }
+          ],
+          "winningMoves": [
+            "d6c5",
+            "d6c6",
+            "d6d5",
+            "d6d7",
+            "d6e5",
+            "d6e6",
+            "d6e7",
+            "h7c7",
+            "h7d7",
+            "h7e7",
+            "h7f7",
+            "h7g7",
+            "h7h1",
+            "h7h2",
+            "h7h3",
+            "h7h4",
+            "h7h5",
+            "h7h6",
+            "h7h8"
+          ],
+          "generated": true
+        },
+        "g8": {
+          "fen": "k7/7R/2K5/8/8/8/8/8 w - - 16 9",
+          "expects": [
+            {
+              "moves": [
+                "c6b6"
+              ],
+              "reply": "a8b8",
+              "next": "g9",
+              "feedback": "O rei branco se aproxima — é ele quem fecha a caixa.",
+              "generated": true
+            }
+          ],
+          "winningMoves": [
+            "c6b5",
+            "c6b6",
+            "c6c5",
+            "c6c7",
+            "c6d5",
+            "c6d6",
+            "c6d7",
+            "h7c7",
+            "h7d7",
+            "h7e7",
+            "h7f7",
+            "h7g7",
+            "h7h1",
+            "h7h2",
+            "h7h3",
+            "h7h4",
+            "h7h5",
+            "h7h6",
+            "h7h8"
+          ],
+          "generated": true
+        },
+        "g9": {
+          "fen": "1k6/7R/1K6/8/8/8/8/8 w - - 18 10",
+          "expects": [
+            {
+              "moves": [
+                "h7h8"
+              ],
+              "feedback": "Xeque-mate. A mesma receita chegou ao fim por outro caminho.",
+              "generated": true
+            }
+          ],
+          "winningMoves": [
+            "b6a5",
+            "b6a6",
+            "b6b5",
+            "b6c5",
+            "b6c6",
+            "h7a7",
+            "h7b7",
+            "h7c7",
+            "h7d7",
+            "h7e7",
+            "h7f7",
+            "h7g7",
+            "h7h1",
+            "h7h2",
+            "h7h3",
+            "h7h4",
+            "h7h5",
+            "h7h6",
+            "h7h8"
+          ],
+          "generated": true
         }
       },
       "moveLimit": 12

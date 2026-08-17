@@ -2,6 +2,8 @@ import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from "no
 import path from "node:path";
 import { Chess, validateFen } from "chess.js";
 import { z } from "zod";
+import { applyUci, samePosition } from "../lib/chess/fen.ts";
+import { OutOfScopeError, techniqueScope } from "../lib/chess/technique.ts";
 import {
   lessonSchema,
   positionSchema,
@@ -10,6 +12,17 @@ import {
   type MoveTree,
   type Position,
 } from "../lib/lesson/schema.ts";
+import {
+  alternativesDiffer,
+  authorialExpects,
+  branchesDiffer,
+  generateAlternatives,
+  generateBranches,
+  GENERATED_ID,
+  GeneratorError,
+  longestLine,
+  type GeneratedTree,
+} from "./branches.ts";
 import { CacheMissError, Tablebase, winningMovesOf, type TbEntry } from "./tablebase.ts";
 
 /**
@@ -64,13 +77,6 @@ const tablebase = new Tablebase(cacheDir, allowNetwork);
  * Ferramentas de xadrez
  * ------------------------------------------------------------------ */
 
-/** Identidade da posição: peças, vez, roque e en passant — sem os contadores.
- *  É o critério de "mesma posição" que funde transposições no mesmo nó. */
-function samePosition(a: string, b: string): boolean {
-  const key = (fen: string) => fen.trim().split(/\s+/).slice(0, 4).join(" ");
-  return key(a) === key(b);
-}
-
 function squareDistance(a: string, b: string): number {
   return Math.max(
     Math.abs(a.charCodeAt(0) - b.charCodeAt(0)),
@@ -102,22 +108,6 @@ function fenProblem(fen: string): string | null {
     return "o lado que não está na vez está em xeque — posição impossível";
   }
   return null;
-}
-
-type Applied = { fen: string; game: Chess };
-
-function applyUci(fen: string, uci: string): Applied | null {
-  const game = new Chess(fen);
-  try {
-    game.move({
-      from: uci.slice(0, 2),
-      to: uci.slice(2, 4),
-      promotion: uci.length > 4 ? uci.slice(4) : undefined,
-    });
-  } catch {
-    return null;
-  }
-  return { fen: game.fen(), game };
 }
 
 function pieceCount(fen: string): number {
@@ -471,6 +461,200 @@ async function checkTree(lesson: Lesson, stage: string, tree: MoveTree, options:
 }
 
 /* ------------------------------------------------------------------ *
+ * Ramos equivalentes — geração na autoria, conferência offline
+ * ------------------------------------------------------------------ */
+
+/**
+ * O ramo gerado é derivado, não escrito: o mesmo contrato do `winningMoves`.
+ * Com `--write` ele é regravado; sem `--write` o validador recomputa e compara.
+ * A regeneração começa sempre da árvore autoral, então é idempotente.
+ */
+
+type RawNode = { expects?: Array<Record<string, unknown>>; [key: string]: unknown };
+type RawTree = { nodes?: Record<string, RawNode> };
+
+const EMPTY_BRANCHES: GeneratedTree = { expects: new Map(), nodes: new Map() };
+
+/** A posição é KRK/KQK? Fora disso o gerador recusa em vez de gerar lixo. */
+function inScope(tree: MoveTree): boolean {
+  const root = tree.nodes[tree.root];
+  if (!root) return false;
+  try {
+    techniqueScope(root.fen);
+    return true;
+  } catch (error) {
+    if (error instanceof OutOfScopeError) return false;
+    throw error;
+  }
+}
+
+function stripGeneratedFrom(tree: MoveTree, raw: RawTree | undefined) {
+  for (const id of Object.keys(tree.nodes)) {
+    if (GENERATED_ID.test(id)) {
+      delete tree.nodes[id];
+      if (raw?.nodes) delete raw.nodes[id];
+      continue;
+    }
+    const node = tree.nodes[id];
+    node.expects = authorialExpects(node);
+    delete node.methodAlternatives;
+
+    const rawNode = raw?.nodes?.[id];
+    if (!rawNode) continue;
+    if (Array.isArray(rawNode.expects)) {
+      rawNode.expects = rawNode.expects.filter((expect) => expect.generated !== true);
+    }
+    delete rawNode.methodAlternatives;
+  }
+}
+
+function writeBranches(tree: MoveTree, raw: RawTree | undefined, generated: GeneratedTree) {
+  stripGeneratedFrom(tree, raw);
+  for (const [id, list] of generated.expects) {
+    tree.nodes[id]?.expects.push(...list);
+    const rawNode = raw?.nodes?.[id];
+    if (rawNode && Array.isArray(rawNode.expects)) {
+      rawNode.expects.push(...(structuredClone(list) as Array<Record<string, unknown>>));
+    }
+  }
+  for (const [id, node] of generated.nodes) {
+    tree.nodes[id] = node;
+    if (raw?.nodes) raw.nodes[id] = structuredClone(node) as unknown as RawNode;
+  }
+}
+
+function writeAlternatives(
+  tree: MoveTree,
+  raw: RawTree | undefined,
+  alternatives: Map<string, string[]>,
+) {
+  stripGeneratedFrom(tree, raw);
+  for (const [id, list] of alternatives) {
+    const node = tree.nodes[id];
+    if (node) node.methodAlternatives = [...list];
+    const rawNode = raw?.nodes?.[id];
+    if (rawNode) rawNode.methodAlternatives = [...list];
+  }
+}
+
+async function generateFor(loaded: LoadedLesson) {
+  const { lesson } = loaded;
+  const rawStages = (loaded.raw as { stages?: Record<string, RawTree> }).stages ?? {};
+  const ask2 = (fen: string, at: string) => ask(fen, at);
+
+  // Teto da autoria: o schema deixa 8 expects por nó, mas 4 deles no máximo
+  // podem ter sido escritos por gente — o resto é do gerador.
+  for (const stageName of ["guided", "solo"] as const) {
+    const tree = lesson.stages[stageName];
+    if (!tree) continue;
+    for (const [id, node] of Object.entries(tree.nodes)) {
+      if (authorialExpects(node).length > 4) {
+        fail(
+          "EXPECTS_AUTORAIS_DEMAIS",
+          `aula ${lesson.id} / ${stageName} / ${id}`,
+          `${authorialExpects(node).length} expects escritos à mão; o teto da autoria é 4`,
+        );
+      }
+    }
+  }
+
+  /* Etapa 3 — só a lista de alternativas, sem ramo. */
+  const guided = lesson.stages.guided;
+  if (guided) {
+    const where = `aula ${lesson.id} / guided`;
+    for (const id of Object.keys(guided.nodes)) {
+      if (GENERATED_ID.test(id)) {
+        fail("ID_RESERVADO", `${where} / ${id}`, `"g<número>" é reservado ao gerador de ramos`);
+      }
+    }
+
+    const derived = inScope(guided) ? await generateAlternatives(guided, ask2, where) : new Map();
+    if (writeBack) {
+      writeAlternatives(guided, rawStages.guided, derived);
+    } else {
+      const problem = alternativesDiffer(guided, derived);
+      if (problem) {
+        fail(
+          "ALTERNATIVAS_DESATUALIZADAS",
+          where,
+          `${problem} — rode \`npm run validate:content -- --refresh-cache --write\``,
+        );
+      }
+    }
+  }
+
+  /* Etapa 4 — os ramos de verdade. */
+  const solo = lesson.stages.solo;
+  if (!solo) return;
+  const where = `aula ${lesson.id} / solo`;
+
+  for (const [id, node] of Object.entries(solo.nodes)) {
+    if (node.methodAlternatives) {
+      fail(
+        "ALTERNATIVA_NO_SOLO",
+        `${where} / ${id}`,
+        "methodAlternatives é da etapa 3; na etapa 4 o equivalente vira ramo, não elogio",
+      );
+    }
+  }
+
+  let generated = EMPTY_BRANCHES;
+  if (inScope(solo)) {
+    // Saber se haveria ramo é barato e não depende dos textos — por isso a
+    // conferência dos templates vem antes de gerar.
+    const candidates = await generateAlternatives(solo, ask2, where);
+    if (candidates.size > 0 && !lesson.generatedTemplates) {
+      fail(
+        "TEMPLATE_FALTANDO",
+        where,
+        `${candidates.size} nó(s) têm lance equivalente, mas a aula não tem generatedTemplates — ` +
+          `sem os textos o ramo gerado ficaria mudo`,
+      );
+    } else if (lesson.generatedTemplates) {
+      try {
+        generated = await generateBranches(solo, lesson.generatedTemplates, ask2, where);
+      } catch (error) {
+        if (error instanceof GeneratorError) {
+          fail(error.code, where, error.message);
+          return;
+        }
+        if (error instanceof OutOfScopeError) {
+          fail("GERADOR_FORA_DE_ESCOPO", where, error.message);
+          return;
+        }
+        throw error;
+      }
+    }
+  }
+
+  if (writeBack) {
+    writeBranches(solo, rawStages.solo, generated);
+  } else {
+    const problem = branchesDiffer(solo, generated);
+    if (problem) {
+      fail(
+        "RAMO_DESATUALIZADO",
+        where,
+        `${problem} — rode \`npm run validate:content -- --refresh-cache --write\``,
+      );
+    }
+  }
+
+  // Por caminho, não por nó: com transposição, contar nós engana.
+  const longest = longestLine(solo);
+  if (longest === "ciclo") {
+    fail("LINHA_ESTOURA_TETO", where, "há um ciclo na árvore — alguma linha nunca termina");
+  } else if (longest > solo.moveLimit) {
+    fail(
+      "LINHA_ESTOURA_TETO",
+      where,
+      `a linha mais longa pede ${longest} lances do aluno e o moveLimit é ${solo.moveLimit} — ` +
+        `a saída honesta é subir o moveLimit da aula`,
+    );
+  }
+}
+
+/* ------------------------------------------------------------------ *
  * Conferência por aula
  * ------------------------------------------------------------------ */
 
@@ -560,6 +744,11 @@ async function checkLesson(loaded: LoadedLesson) {
  * Execução
  * ------------------------------------------------------------------ */
 
+// A geração vem primeiro: o que ela produz passa pelas mesmas conferências que
+// o resto da árvore — nó gerado é nó comum.
+for (const loaded of lessons) {
+  await generateFor(loaded);
+}
 for (const position of positions.values()) {
   await checkPosition(position);
 }
