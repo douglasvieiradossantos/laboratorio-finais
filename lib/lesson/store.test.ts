@@ -4,7 +4,14 @@ import path from "node:path";
 import test from "node:test";
 import { Chess } from "chess.js";
 import { lessonSchema, type MoveTree } from "./schema.ts";
-import { restingMessage, useLessonStore, type TreeKey, type TreeState } from "./store.ts";
+import {
+  restingMessage,
+  restingPracticeMessage,
+  reviewKey,
+  useLessonStore,
+  type TreeKey,
+  type TreeState,
+} from "./store.ts";
 import { judgeMove, throwsWinAway } from "./tree.ts";
 
 /**
@@ -199,4 +206,145 @@ test("o lance que dá mate conta como lance do aluno", () => {
   const state = useLessonStore.getState().trees.solo!;
   assert.equal(state.studentMoves, expected);
   assert.ok(state.studentMoves <= solo.moveLimit, "o roteiro do autor cabe no teto da etapa");
+});
+
+/* ------------------------------------------------------------------ *
+ * Etapas 5 e 6 — a partida contra o motor (F1/B4)
+ * ------------------------------------------------------------------ */
+
+const practice = lesson.stages.practice!;
+const PRACTICE_FEN = "8/8/8/8/8/2k5/8/2K4R w - - 0 1";
+
+/** Abre a aula já com a partida da etapa 5 registrada, como o `LessonPlayer` faz. */
+function openWithPractice() {
+  useLessonStore
+    .getState()
+    .open(lesson.id, "practice", { solo: lesson.stages.solo!.root }, [
+      { key: "practice", positionId: practice.positionId, startFen: PRACTICE_FEN },
+    ]);
+}
+
+/** O replay que o `PracticeStage` faz: origem mais lances reconstroem a partida. */
+function replay(state: { startFen: string; moves: string[] }): Chess {
+  const game = new Chess(state.startFen);
+  for (const uci of state.moves) {
+    game.move({
+      from: uci.slice(0, 2),
+      to: uci.slice(2, 4),
+      promotion: uci.length > 4 ? uci.slice(4) : undefined,
+    });
+  }
+  return game;
+}
+
+test("a partida sobrevive a sair da etapa e voltar, reproduzindo a mesma posição", () => {
+  openWithPractice();
+  const store = useLessonStore.getState();
+  // Aluno e motor alternando: os dois lados entram pela mesma ação.
+  for (const uci of ["h1h3", "c3c4", "c1c2", "c4b4"]) store.practiceMove("practice", uci);
+
+  const antes = replay(useLessonStore.getState().practices.practice!).fen();
+
+  useLessonStore.getState().goToStage("solo");
+  useLessonStore.getState().goToStage("practice");
+
+  const depois = replay(useLessonStore.getState().practices.practice!).fen();
+  assert.equal(depois, antes, "voltar à etapa ressuscitou outra posição");
+  assert.equal(useLessonStore.getState().practices.practice!.moves.length, 4);
+});
+
+test("guardar lances, e não a FEN, é o que mantém a repetição visível", () => {
+  // A razão de `PracticeState` ter `moves` em vez de `fen`: `isThreefoldRepetition`
+  // conta o histórico da instância, e uma FEN não carrega histórico. Se a store
+  // guardasse só a posição corrente, este desfecho seria invisível.
+  openWithPractice();
+  const store = useLessonStore.getState();
+  for (const uci of ["h1h2", "c3c4", "h2h1", "c4c3", "h1h2", "c3c4", "h2h1", "c4c3"]) {
+    store.practiceMove("practice", uci);
+  }
+  assert.equal(replay(useLessonStore.getState().practices.practice!).isThreefoldRepetition(), true);
+});
+
+test("o desfecho volta ao painel depois de sair e voltar", () => {
+  openWithPractice();
+  useLessonStore.getState().practiceMove("practice", "h1h3");
+  useLessonStore.getState().practiceFinish("practice", {
+    result: "draw",
+    text: "50 lances sem progresso — empate. A caixa precisa encolher mais rápido.",
+    passed: false,
+  });
+
+  useLessonStore.getState().goToStage("solo");
+  useLessonStore.getState().goToStage("practice");
+
+  const painel = restingPracticeMessage(useLessonStore.getState().practices.practice);
+  assert.equal(painel?.tone, "warn", "empate reprovado é âmbar, não rubro");
+  assert.equal(painel?.seq, 0, "estado reencontrado não é evento novo");
+  assert.equal(painel?.done, false, "reprovação não carimba etapa concluída");
+  assert.ok(painel?.text.startsWith("50 lances"));
+});
+
+test("recomeçar zera os lances e sobe a tentativa", () => {
+  openWithPractice();
+  const store = useLessonStore.getState();
+  for (const uci of ["h1h3", "c3c4"]) store.practiceMove("practice", uci);
+  store.practiceFinish("practice", { result: "draw", text: "empatou", passed: false });
+
+  useLessonStore.getState().practiceRestart("practice");
+
+  const state = useLessonStore.getState().practices.practice!;
+  assert.deepEqual(state.moves, []);
+  assert.equal(state.attempt, 2);
+  assert.equal(state.status, "playing");
+  assert.equal(restingPracticeMessage(state), null, "recomeçar limpa o painel junto");
+  assert.equal(replay(state).fen(), PRACTICE_FEN);
+});
+
+test("lance depois do fim da partida é recusado pela store", () => {
+  openWithPractice();
+  useLessonStore.getState().practiceFinish("practice", {
+    result: "win-white",
+    text: "venceu",
+    passed: true,
+  });
+  useLessonStore.getState().practiceMove("practice", "h1h3");
+  assert.deepEqual(useLessonStore.getState().practices.practice!.moves, []);
+});
+
+test("a etapa 4 vencida liga o selo, e recomeçá-la não o desliga", () => {
+  // O critério de domínio é "na mesma sessão" (§6 do plano): quem zera é trocar
+  // de aula. Recomeçar a etapa 4 por curiosidade não pode tirar o que foi feito.
+  playScriptedLine("solo", lesson.stages.solo!);
+  assert.equal(useLessonStore.getState().cleared.solo, true);
+
+  useLessonStore.getState().treeRestart("solo");
+  assert.equal(useLessonStore.getState().cleared.solo, true, "o selo não é revogável");
+});
+
+test("só a etapa 5 vencida liga o selo da prática — revisão não conta", () => {
+  useLessonStore.getState().open(lesson.id, "practice", {}, [
+    { key: "practice", positionId: practice.positionId, startFen: PRACTICE_FEN },
+    { key: reviewKey("pos-n0-rmate-fx-d"), positionId: "pos-n0-rmate-fx-d", startFen: PRACTICE_FEN },
+  ]);
+
+  useLessonStore.getState().practiceFinish(reviewKey("pos-n0-rmate-fx-d"), {
+    result: "win-white",
+    text: "venceu a revisão",
+    passed: true,
+  });
+  assert.equal(useLessonStore.getState().cleared.practice, false, "revisão não afere domínio");
+
+  useLessonStore.getState().practiceFinish("practice", {
+    result: "win-white",
+    text: "venceu a prática",
+    passed: true,
+  });
+  assert.equal(useLessonStore.getState().cleared.practice, true);
+});
+
+test("abrir a aula zera o selo — é o que define a mesma sessão", () => {
+  playScriptedLine("solo", lesson.stages.solo!);
+  assert.equal(useLessonStore.getState().cleared.solo, true);
+  openWithPractice();
+  assert.deepEqual(useLessonStore.getState().cleared, { solo: false, practice: false });
 });

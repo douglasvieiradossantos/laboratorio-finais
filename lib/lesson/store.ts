@@ -125,15 +125,91 @@ export function restingMessage(tree: TreeState | undefined): PanelMessage | null
   return null;
 }
 
+/* ------------------------------------------------------------------ *
+ * Etapas 5 e 6 — a partida contra o motor
+ * ------------------------------------------------------------------ */
+
+/**
+ * Qual partida. A etapa 5 tem uma; a etapa 6 tem uma por posição de revisão.
+ * As duas jogam exatamente a mesma partida contra o mesmo motor, então
+ * compartilham estado e ações — o que muda é a chave.
+ */
+export type PracticeKey = "practice" | `review:${string}`;
+
+export function reviewKey(positionId: string): PracticeKey {
+  return `review:${positionId}`;
+}
+
+export type PracticeEnd = {
+  result: "win-white" | "win-black" | "draw";
+  /** O texto já composto pelo `judgePractice`, com o fato e o conselho. */
+  text: string;
+  passed: boolean;
+};
+
+/**
+ * A partida guardada como **origem mais lances**, e não como posição corrente.
+ *
+ * Não é preciosismo: a lista de lances reconstrói a posição final, o relógio da
+ * regra dos 50 lances **e** o contador de repetição — que uma FEN não carrega.
+ * Guardar só a FEN atual tornaria `isThreefoldRepetition` cego, e toda partida
+ * arrastaria até os 50 lances. Ver o comentário em `lib/chess/status.ts`.
+ *
+ * É também o que faz a etapa sobreviver a sair e voltar sem a foto do desfecho
+ * que a árvore precisou ter (`TreeEnd`): aqui o desfecho é derivado do replay.
+ */
+export type PracticeState = {
+  positionId: string;
+  startFen: string;
+  /** Os lances da partida em UCI, dos dois lados, na ordem. */
+  moves: string[];
+  attempt: number;
+  status: "playing" | "passed" | "failed";
+  end: PracticeEnd | null;
+};
+
+function freshPractice(positionId: string, startFen: string, attempt = 1): PracticeState {
+  return { positionId, startFen, moves: [], attempt, status: "playing", end: null };
+}
+
+/** O espelho de `restingMessage` para a partida. */
+export function restingPracticeMessage(practice: PracticeState | undefined): PanelMessage | null {
+  if (!practice?.end) return null;
+  const { end } = practice;
+  return {
+    tone: end.passed ? "good" : end.result === "draw" ? "warn" : "bad",
+    text: end.text,
+    done: end.passed,
+    seq: 0,
+  };
+}
+
+/**
+ * O que o aluno já venceu nesta sessão, para o selo de domínio (§6 do plano).
+ *
+ * **Grudento de propósito:** recomeçar a etapa 4 depois de tê-la vencido não
+ * tira o selo. Quem zera é `open()`, ou seja, trocar de aula — que é
+ * exatamente o "na mesma sessão" que a definição de D1 pede.
+ */
+export type Cleared = { solo: boolean; practice: boolean };
+
 type LessonStore = {
   lessonId: string | null;
   stage: StageKey;
   /** Quantos lances da etapa 2 já foram reproduzidos (0 = posição inicial). */
   step: number;
   trees: Partial<Record<TreeKey, TreeState>>;
+  /** Indexado por `PracticeKey`; `Record<string, …>` porque chave de template é índice de string. */
+  practices: Record<string, PracticeState | undefined>;
+  cleared: Cleared;
   message: PanelMessage | null;
 
-  open: (lessonId: string, stage: StageKey, roots: Partial<Record<TreeKey, string>>) => void;
+  open: (
+    lessonId: string,
+    stage: StageKey,
+    roots: Partial<Record<TreeKey, string>>,
+    practices?: Array<{ key: PracticeKey; positionId: string; startFen: string }>,
+  ) => void;
   goToStage: (stage: StageKey) => void;
   setStep: (step: number) => void;
   say: (tone: MessageTone, text: string, square?: string) => void;
@@ -155,6 +231,11 @@ type LessonStore = {
   treeFail: (key: TreeKey, reason?: TreeFailure) => void;
   treeRestart: (key: TreeKey) => void;
   toggleHint: (key: TreeKey) => void;
+
+  /** Um lance aceito na partida — do aluno ou do motor, os dois entram aqui. */
+  practiceMove: (key: PracticeKey, uci: string) => void;
+  practiceFinish: (key: PracticeKey, end: PracticeEnd) => void;
+  practiceRestart: (key: PracticeKey) => void;
 };
 
 export const useLessonStore = create<LessonStore>((set) => ({
@@ -162,18 +243,24 @@ export const useLessonStore = create<LessonStore>((set) => ({
   stage: "objective",
   step: 0,
   trees: {},
+  practices: {},
+  cleared: { solo: false, practice: false },
   message: null,
 
-  open: (lessonId, stage, roots) =>
+  open: (lessonId, stage, roots, practices = []) =>
     set({
       lessonId,
       stage,
       step: 0,
       message: null,
+      cleared: { solo: false, practice: false },
       trees: {
         ...(roots.guided ? { guided: freshTree(roots.guided) } : {}),
         ...(roots.solo ? { solo: freshTree(roots.solo) } : {}),
       },
+      practices: Object.fromEntries(
+        practices.map((p) => [p.key, freshPractice(p.positionId, p.startFen)]),
+      ),
     }),
 
   goToStage: (stage) => set({ stage, message: null }),
@@ -199,6 +286,13 @@ export const useLessonStore = create<LessonStore>((set) => ({
       if (!tree) return state;
       const finished = nextNodeId === null;
       return {
+        // Chegar ao mate na etapa 4 é metade do critério de domínio (§6 do
+        // plano). Nada mais precisa ser contado: um lance que joga a vitória
+        // fora já encerra a tentativa por `treeFail`, o teto de lances também,
+        // a etapa 4 roda sem dica nenhuma, e o gate de conteúdo prova que todo
+        // nó terminal é mate de verdade — o que descarta afogamento. Portanto
+        // `status: "done"` na etapa 4 **é** o critério, e basta lê-lo.
+        cleared: key === "solo" && finished ? { ...state.cleared, solo: true } : state.cleared,
         trees: {
           ...state.trees,
           [key]: {
@@ -242,5 +336,46 @@ export const useLessonStore = create<LessonStore>((set) => ({
       const tree = state.trees[key];
       if (!tree) return state;
       return { trees: { ...state.trees, [key]: { ...tree, hintOpen: !tree.hintOpen } } };
+    }),
+
+  practiceMove: (key, uci) =>
+    set((state) => {
+      const practice = state.practices[key];
+      if (!practice || practice.status !== "playing") return state;
+      return {
+        practices: {
+          ...state.practices,
+          // Array novo, não `push`: é a referência que faz o `useMemo` do
+          // replay recalcular a partida no componente.
+          [key]: { ...practice, moves: [...practice.moves, uci] },
+        },
+      };
+    }),
+
+  practiceFinish: (key, end) =>
+    set((state) => {
+      const practice = state.practices[key];
+      if (!practice) return state;
+      return {
+        cleared:
+          key === "practice" && end.passed ? { ...state.cleared, practice: true } : state.cleared,
+        practices: {
+          ...state.practices,
+          [key]: { ...practice, status: end.passed ? "passed" : "failed", end },
+        },
+      };
+    }),
+
+  practiceRestart: (key) =>
+    set((state) => {
+      const practice = state.practices[key];
+      if (!practice) return state;
+      return {
+        message: null,
+        practices: {
+          ...state.practices,
+          [key]: freshPractice(practice.positionId, practice.startFen, practice.attempt + 1),
+        },
+      };
     }),
 }));

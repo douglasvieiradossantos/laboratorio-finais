@@ -3,17 +3,22 @@
 import { useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import type { LessonBundle } from "@/lib/lesson/content";
-import { STAGE_LABEL, STAGE_ORDER, useLessonStore, type StageKey } from "@/lib/lesson/store";
+import { masteryReport } from "@/lib/lesson/mastery";
+import {
+  reviewKey,
+  STAGE_LABEL,
+  STAGE_ORDER,
+  useLessonStore,
+  type PracticeKey,
+  type StageKey,
+} from "@/lib/lesson/store";
 import { armAudioOnFirstGesture, isSoundOn, setSoundOn, subscribeSound } from "@/lib/sound";
 import { ExampleStage } from "./ExampleStage";
+import { MasterySeal } from "./MasterySeal";
 import { ObjectiveStage } from "./ObjectiveStage";
+import { PracticeStage } from "./PracticeStage";
+import { ReviewStage } from "./ReviewStage";
 import { TreeStage } from "./TreeStage";
-
-/** Etapas que a F1 ainda não entregou na tela — chegam no bloco B4. */
-const COMING_IN_B4: Record<"practice" | "review", string> = {
-  practice: "A partida contra o computador entra no próximo bloco (Stockfish em Web Worker).",
-  review: "A revisão das posições novas entra junto com a prática real, no próximo bloco.",
-};
 
 /**
  * Orquestra a aula: qual etapa está aberta, o avanço entre elas e a montagem
@@ -26,6 +31,7 @@ export function LessonPlayer({ bundle }: { bundle: LessonBundle }) {
   const lessonId = useLessonStore((s) => s.lessonId);
   const open = useLessonStore((s) => s.open);
   const goToStage = useLessonStore((s) => s.goToStage);
+  const cleared = useLessonStore((s) => s.cleared);
 
   const available = STAGE_ORDER.filter((key) => lesson.stages[key] !== undefined);
 
@@ -34,10 +40,28 @@ export function LessonPlayer({ bundle }: { bundle: LessonBundle }) {
   useEffect(() => armAudioOnFirstGesture(), []);
 
   useEffect(() => {
-    open(lesson.id, available[0] ?? "objective", {
-      guided: lesson.stages.guided?.root,
-      solo: lesson.stages.solo?.root,
-    });
+    // As partidas das etapas 5 e 6 são registradas aqui, junto das raízes das
+    // árvores: quem inicializa é a store, não a etapa — e assim trocar de aula
+    // zera prática e revisão pelo mesmo caminho que zera as árvores.
+    const practices: Array<{ key: PracticeKey; positionId: string; startFen: string }> = [];
+    const practice = lesson.stages.practice;
+    if (practice) {
+      practices.push({
+        key: "practice",
+        positionId: practice.positionId,
+        startFen: positions[practice.positionId].fen,
+      });
+    }
+    for (const id of lesson.stages.review?.reviewPositionIds ?? []) {
+      practices.push({ key: reviewKey(id), positionId: id, startFen: positions[id].fen });
+    }
+
+    open(
+      lesson.id,
+      available[0] ?? "objective",
+      { guided: lesson.stages.guided?.root, solo: lesson.stages.solo?.root },
+      practices,
+    );
     // Reabrir a aula é o que zera o estado; o resto vem da store.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [lesson.id]);
@@ -147,10 +171,37 @@ export function LessonPlayer({ bundle }: { bundle: LessonBundle }) {
           />
         )}
 
-        {(stage === "practice" || stage === "review") && (
-          <p className="rounded-lg border border-white/10 bg-slate-900 px-4 py-6 text-sm leading-relaxed text-slate-400">
-            {COMING_IN_B4[stage]}
-          </p>
+        {stage === "practice" && lesson.stages.practice && (
+          <PracticeStage
+            practiceKey="practice"
+            position={positions[lesson.stages.practice.positionId]}
+            orientation={lesson.orientation}
+            goal={lesson.stages.practice.goal}
+            engine={lesson.stages.practice.engine}
+            intro="Agora é partida de verdade: o computador defende com tudo o que sabe, e nenhum lance é corrigido no caminho. Quem decide é o resultado."
+            seal={
+              <MasterySeal
+                report={masteryReport({ soloCleared: cleared.solo, practiceWon: cleared.practice })}
+                onGoToSolo={
+                  lesson.stages.solo ? () => goToStage("solo") : undefined
+                }
+              />
+            }
+            onFinish={() => {
+              const next = nextStage("practice");
+              if (next) goToStage(next);
+            }}
+            finishLabel="Ir para a revisão"
+          />
+        )}
+
+        {stage === "review" && lesson.stages.review && (
+          <ReviewStage
+            stage={lesson.stages.review}
+            practice={lesson.stages.practice}
+            positions={positions}
+            orientation={lesson.orientation}
+          />
         )}
       </section>
     </div>

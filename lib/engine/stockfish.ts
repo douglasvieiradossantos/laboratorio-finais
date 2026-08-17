@@ -248,6 +248,27 @@ function cancel(): void {
   if (worker && status === "ready") post(STOP_COMMAND);
 }
 
+/**
+ * Espera o motor ficar **ocioso** — não só carregado.
+ *
+ * Sem isto o motor morre, e a morte é feia: `RuntimeError: unreachable` dentro
+ * do WebAssembly, worker inerte e tabuleiro parado sem explicação. O `stop` do
+ * UCI é assíncrono: quando ele é enviado, a busca ainda está desenrolando, e
+ * qualquer `ucinewgame` ou `go` que chegue nesse intervalo pega o motor em
+ * estado inconsistente. Foi exatamente o que aconteceu ao recomeçar a partida
+ * enquanto o computador pensava.
+ *
+ * `isready` é a barreira que o protocolo oferece: o motor só responde `readyok`
+ * depois de digerir tudo o que veio antes, busca inclusive. Custa um ida e
+ * volta de microssegundos e transforma a corrida inteira em fila.
+ */
+function whenIdle(): Promise<void> {
+  return new Promise((resolve) => {
+    post(READY_COMMAND);
+    readyWaiters.push(resolve);
+  });
+}
+
 function whenReady(): Promise<void> {
   if (status === "ready") return Promise.resolve();
   if (status === "failed") return Promise.reject(new Error("o motor não está disponível"));
@@ -285,9 +306,15 @@ export function getEngineStatus(): EngineStatus {
 async function bestMove(req: BestMoveRequest): Promise<string> {
   start();
   cancel();
-  await whenReady();
-
+  // Capturado logo depois do `cancel`, que acabou de incrementar: este número é
+  // *o nosso* pedido. Se outro `bestMove` ou um `cancel` entrar durante as
+  // esperas abaixo, o número muda e nós desistimos — sem isso, dois pedidos
+  // simultâneos mandariam dois `go` e o motor receberia comandos entrelaçados.
   const id = requestId;
+  await whenReady();
+  await whenIdle();
+  if (id !== requestId) throw abortedError();
+
   const promise = new Promise<string>((resolve, reject) => {
     const timer = setTimeout(() => {
       if (pending?.id !== id) return;
@@ -311,11 +338,15 @@ async function bestMove(req: BestMoveRequest): Promise<string> {
 function newGame(): void {
   if (!worker || status !== "ready") return;
   cancel();
-  post(NEW_GAME_COMMAND);
+  // `ucinewgame` **só** depois de o motor confirmar que parou. Mandá-lo logo
+  // atrás do `stop` é o que matava o WebAssembly — ver `whenIdle`.
   post(READY_COMMAND);
   readyWaiters.push(() => {
-    // Nada a fazer: o motor só precisa ter digerido o `ucinewgame` antes do
-    // próximo `position`. A fila garante a ordem.
+    post(NEW_GAME_COMMAND);
+    post(READY_COMMAND);
+    readyWaiters.push(() => {
+      // Ocioso e com a memória de busca limpa. O próximo `position` é seguro.
+    });
   });
 }
 
