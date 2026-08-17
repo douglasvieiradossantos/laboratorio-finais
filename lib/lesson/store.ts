@@ -46,6 +46,13 @@ export type PanelMessage = {
   seq: number;
   /** Casa envolvida, para o reforço visual breve no tabuleiro. */
   square?: string;
+  /**
+   * Esta mensagem é a conclusão da etapa. O painel só consegue enfatizar o que
+   * é nó separado — enquanto "Etapa concluída." era concatenada no fim do texto
+   * do autor, não havia o que destacar, e o leitor de tela recebia a conclusão
+   * como rabo de frase em vez de começar por ela.
+   */
+  done?: boolean;
 };
 
 export type TreeStatus = "playing" | "done" | "failed";
@@ -77,6 +84,12 @@ type LessonStore = {
   goToStage: (stage: StageKey) => void;
   setStep: (step: number) => void;
   say: (tone: MessageTone, text: string, square?: string) => void;
+  /**
+   * A mensagem de fim de etapa. Ação nomeada em vez de um quarto parâmetro
+   * posicional no `say` — que tem ~20 chamadas e ficaria ilegível com um
+   * booleano solto no fim.
+   */
+  celebrate: (text: string) => void;
   clearMessage: () => void;
   /** Apaga só o reforço visual; o texto do painel continua na tela. */
   fadeFlash: () => void;
@@ -111,6 +124,11 @@ export const useLessonStore = create<LessonStore>((set) => ({
   say: (tone, text, square) =>
     set((state) => ({
       message: { tone, text, square, seq: (state.message?.seq ?? 0) + 1 },
+    })),
+
+  celebrate: (text) =>
+    set((state) => ({
+      message: { tone: "good", text, done: true, seq: (state.message?.seq ?? 0) + 1 },
     })),
 
   clearMessage: () => set({ message: null }),

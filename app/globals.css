@@ -77,3 +77,99 @@ body {
   height: auto;
   text-transform: none;
 }
+
+/* --------------------------------------------------------------------------
+   Animações da aula
+
+   Três regras, para quem vier depois:
+
+   1. Todo `@keyframes` do projeto mora aqui. Nada de animação declarada solta
+      dentro de componente — a lista completa do que a aula pode mexer na tela
+      tem de ser legível num lugar só.
+   2. **Toda** declaração `animation:` fica dentro de
+      `@media (prefers-reduced-motion: no-preference)`. A guarda é por adesão,
+      não por exceção: quem esquecer de guardar faz a animação simplesmente não
+      rodar, que é o lado seguro do erro.
+   3. **Nunca animar `transform` nem `opacity`** em elemento do chessground. A
+      posição de cada peça é `style.transform = translate(Xpx,Ypx)` inline, e
+      um `@keyframes` ganha da declaração inline pela cascata: a peça salta
+      para o canto do tabuleiro. `opacity` o próprio pacote já usa em
+      `piece.ghost` e `piece.fading`. A propriedade segura é `filter`, que o
+      pacote nunca escreve em `<piece>`.
+   -------------------------------------------------------------------------- */
+
+/* O anel em volta do tabuleiro: tinta que transborda, sem entrar no layout.
+   `box-shadow` com spread e não `outline`, `border`, `scale` ou `inset`
+   negativo — no celular a coluna do tabuleiro já é `88vw` dentro de um `px-4`,
+   e qualquer coisa que ocupe espaço geraria barra de rolagem horizontal. */
+@keyframes pulso-anel {
+  0% {
+    box-shadow: 0 0 0 0 rgb(var(--cor-anel) / 0);
+  }
+  35% {
+    box-shadow: 0 0 22px 7px rgb(var(--cor-anel) / 0.55);
+  }
+  100% {
+    box-shadow: 0 0 30px 11px rgb(var(--cor-anel) / 0);
+  }
+}
+
+/* O rei matado. `drop-shadow()` acompanha o alpha do SVG, então o brilho
+   contorna a silhueta da peça — não um quadrado em volta dela.
+   3 × 480ms = 1,44s, e sem `fill-mode`: volta a `filter: none` sozinho, então
+   o atributo `data-mate` pode ficar setado para sempre sem repetir nada. */
+@keyframes pulso-rei {
+  0%,
+  100% {
+    filter: none;
+  }
+  50% {
+    filter: drop-shadow(0 0 6px rgb(251 113 133 / 0.95)) brightness(1.12);
+  }
+}
+
+/* O selo de etapa concluída no painel: um bloom de um disparo. Não precisa de
+   remontagem — começa quando o atributo passa de ausente a presente. */
+@keyframes destaque-conclusao {
+  0% {
+    box-shadow: 0 0 0 0 rgb(52 211 153 / 0);
+  }
+  30% {
+    box-shadow: 0 0 26px 4px rgb(52 211 153 / 0.4);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgb(52 211 153 / 0);
+  }
+}
+
+/* Um mapa de tom → cor, uma animação só. O tom vem de `data-tom`, que é o
+   mesmo `good`/`warn`/`bad` que o painel já usa. */
+.anel-pulso {
+  --cor-anel: 52 211 153; /* emerald-400 — é o método */
+  border-radius: 0.25rem;
+}
+
+.anel-pulso[data-tom="warn"] {
+  --cor-anel: 251 191 36; /* amber-400 — ganha, mas não é a aula */
+}
+
+.anel-pulso[data-tom="bad"] {
+  --cor-anel: 251 113 133; /* rose-400 — jogou a vitória fora */
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .anel-pulso {
+    animation: pulso-anel 620ms ease-out 1;
+  }
+
+  /* O seletor exclui de propósito o fantasma do arraste e as peças de
+     anotação, que são irmãos de `cg-board` e não filhos dele. */
+  .cg-wrap[data-mate="black"] cg-board piece.king.black,
+  .cg-wrap[data-mate="white"] cg-board piece.king.white {
+    animation: pulso-rei 480ms ease-in-out 3;
+  }
+
+  [data-enfase="conclusao"] {
+    animation: destaque-conclusao 900ms ease-out 1;
+  }
+}

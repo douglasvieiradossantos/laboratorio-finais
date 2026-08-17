@@ -35,6 +35,17 @@ export type ChessBoardProps = {
    * continua desligado; o que liga aqui é só a *exibição* (`visible`).
    */
   shapes?: DrawShape[];
+  /**
+   * Lado que acabou de ser matado — o rei dele pulsa três vezes. Sai como
+   * `data-mate` no host, e **não** como classe: o chessground escreve `cg-wrap`,
+   * `orientation-*` e `manipulable` no mesmo elemento cujo `className` o React
+   * controla, e só as reescreve na criação e no giro do tabuleiro. Se o React
+   * reatribuísse `class`, elas sumiriam. Atributo `data-*` é escrito isolado.
+   *
+   * Qual rei vem explícito, e não derivado da orientação: assim continua certo
+   * se uma aula futura ensinar o lado da defesa.
+   */
+  matedKing?: Color | null;
   onMove?: (orig: Key, dest: Key) => void;
 };
 
@@ -53,6 +64,7 @@ export function ChessBoard({
   viewOnly = false,
   revision = 0,
   shapes,
+  matedKing = null,
   onMove,
 }: ChessBoardProps) {
   const hostRef = useRef<HTMLDivElement>(null);
@@ -122,6 +134,7 @@ export function ChessBoard({
   return (
     <div
       ref={hostRef}
+      data-mate={matedKing ?? undefined}
       className="cg-wrap aspect-square w-full touch-none select-none"
     />
   );

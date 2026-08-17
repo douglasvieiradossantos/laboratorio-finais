@@ -6,12 +6,16 @@ import type { DrawShape } from "@lichess-org/chessground/draw";
 import type { Color, Key } from "@lichess-org/chessground/types";
 import { ChessBoard } from "@/components/board/ChessBoard";
 import { PromotionPicker, type PromotionChoice } from "@/components/board/PromotionPicker";
+import { teachingShapes } from "@/lib/chess/annotations";
 import { legalDests, toBoardColor } from "@/lib/chess/dests";
 import type { Lesson, MoveTree, Position } from "@/lib/lesson/schema";
 import { judgeMove, throwsWinAway, toUci } from "@/lib/lesson/tree";
 import { useLessonStore, type TreeKey } from "@/lib/lesson/store";
+import { playComplete, playForMove, playRefusal, playSuccess } from "@/lib/sound";
+import { Confetti } from "./Confetti";
 import { FeedbackPanel } from "./FeedbackPanel";
 import { LessonButton } from "./LessonButton";
+import { PulseRing } from "./PulseRing";
 
 /** Tempo que a resposta do defensor espera, para o aluno ver o lance dele. */
 const REPLY_DELAY_MS = 620;
@@ -51,6 +55,7 @@ export function TreeStage({
   const state = useLessonStore((s) => s.trees[treeKey]);
   const message = useLessonStore((s) => s.message);
   const say = useLessonStore((s) => s.say);
+  const celebrate = useLessonStore((s) => s.celebrate);
   const fadeFlash = useLessonStore((s) => s.fadeFlash);
   const treeAdvance = useLessonStore((s) => s.treeAdvance);
   const treeFail = useLessonStore((s) => s.treeFail);
@@ -70,7 +75,11 @@ export function TreeStage({
   const [busy, setBusy] = useState(false);
   const [revision, setRevision] = useState(0);
   const [promotion, setPromotion] = useState<{ orig: Key; dest: Key } | null>(null);
+  /** Sobe uma vez a cada mate: é o que dispara o confete. */
+  const [celebration, setCelebration] = useState(0);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  /** De onde o confete explode: o tabuleiro, não o centro da etapa. */
+  const boardColumn = useRef<HTMLDivElement>(null);
 
   const node = state ? tree.nodes[state.nodeId] : undefined;
   const status = state?.status ?? "playing";
@@ -98,13 +107,26 @@ export function TreeStage({
 
   const board = useMemo(() => {
     const game = new Chess(boardFen);
-    return { turn: toBoardColor(game.turn()), check: game.isCheck(), dests: legalDests(game) };
+    return {
+      turn: toBoardColor(game.turn()),
+      check: game.isCheck(),
+      // Quem está para jogar num mate é o lado matado. Derivado da posição na
+      // tela, então não precisa de estado novo nem de efeito: fica certo até se
+      // uma aula futura ensinar o lado da defesa.
+      mate: game.isCheckmate(),
+      dests: legalDests(game),
+    };
   }, [boardFen]);
 
   const interactive = status === "playing" && !busy && board.turn === orientation;
 
   const shapes: DrawShape[] = useMemo(() => {
-    const list: DrawShape[] = [];
+    // Os destaques automáticos (corte e peça pendurada) saem da posição que
+    // está na tela, então continuam certos mesmo durante a animação do lance.
+    // A etapa 4 não recebe nenhum: é lá que o domínio é aferido.
+    const list: DrawShape[] = allowHelp
+      ? teachingShapes(boardFen, overlay?.lastMove ?? null)
+      : [];
     // Os destaques da autoria valem para o nó parado; enquanto o lance está
     // sendo desenhado eles sairiam do lugar, então somem.
     if (allowHelp && !overlay && status === "playing" && node) {
@@ -112,7 +134,7 @@ export function TreeStage({
     }
     if (message?.square) list.push({ orig: message.square as Key, brush: "red" });
     return list;
-  }, [allowHelp, overlay, status, node, message]);
+  }, [allowHelp, boardFen, overlay, status, node, message]);
 
   const play = useCallback(
     (orig: Key, dest: Key, promoted?: PromotionChoice) => {
@@ -124,6 +146,16 @@ export function TreeStage({
       if (verdict.kind !== "method") {
         // A peça já foi solta na casa errada; `revision` a traz de volta.
         setRevision((r) => r + 1);
+
+        // A mesma técnica por outro caminho (só etapa 3): elogia, sem reforço
+        // vermelho na casa — a peça volta só para a linha escrita continuar.
+        if (verdict.kind === "method-alternative") {
+          playSuccess();
+          say("good", verdict.text);
+          return;
+        }
+
+        playRefusal();
         const fatal = moveLimit !== undefined && throwsWinAway(verdict);
         if (fatal) {
           treeFail(treeKey);
@@ -135,16 +167,20 @@ export function TreeStage({
       }
 
       const game = new Chess(node.fen);
-      game.move({ from: orig, to: dest, promotion: promoted });
+      const played = game.move({ from: orig, to: dest, promotion: promoted });
       const afterFen = game.fen();
       setDrawn({ fen: afterFen, lastMove: [orig, dest], attempt });
 
       // Nó terminal: o lance deu mate (o gate provou que dá) — a etapa acaba.
       if (verdict.next === undefined || verdict.reply === undefined) {
+        playComplete();
+        setCelebration((c) => c + 1);
         treeAdvance(treeKey, null);
-        say("good", `${verdict.feedback} Etapa concluída.`);
+        celebrate(verdict.feedback);
         return;
       }
+
+      playForMove({ capture: Boolean(played.captured), check: game.isCheck() });
 
       const used = state.studentMoves + 1;
       const outOfMoves = moveLimit !== undefined && used >= moveLimit;
@@ -155,11 +191,12 @@ export function TreeStage({
       const next = verdict.next;
       timer.current = setTimeout(() => {
         const after = new Chess(afterFen);
-        after.move({
+        const answered = after.move({
           from: reply.slice(0, 2),
           to: reply.slice(2, 4),
           promotion: reply.length > 4 ? reply.slice(4) : undefined,
         });
+        playForMove({ capture: Boolean(answered.captured), check: after.isCheck() });
         setDrawn({
           fen: after.fen(),
           lastMove: [reply.slice(0, 2) as Key, reply.slice(2, 4) as Key],
@@ -176,7 +213,20 @@ export function TreeStage({
         }
       }, REPLY_DELAY_MS);
     },
-    [attempt, busy, lesson, moveLimit, node, say, state, status, treeAdvance, treeFail, treeKey],
+    [
+      attempt,
+      busy,
+      celebrate,
+      lesson,
+      moveLimit,
+      node,
+      say,
+      state,
+      status,
+      treeAdvance,
+      treeFail,
+      treeKey,
+    ],
   );
 
   const handleMove = useCallback(
@@ -190,6 +240,9 @@ export function TreeStage({
         .filter((move) => move.from === orig && move.to === dest);
       if (candidates.length === 0) {
         setRevision((r) => r + 1);
+        // Era a única recusa muda do arquivo. Com o anel de pulso ficaria cor
+        // sem som, o que soa como bug.
+        playRefusal();
         say("bad", "Esse lance não é legal nesta posição.", dest);
         return;
       }
@@ -206,9 +259,16 @@ export function TreeStage({
 
   const hintAvailable = allowHelp && Boolean(node.hint);
 
+  // A raiz é `relative` **sem `z-index`**, de propósito: assim não cria
+  // contexto de empilhamento novo e as camadas de hoje (canvas `z-10`, promoção
+  // `z-20`) continuam valendo. Também não leva `overflow-hidden` — cortaria o
+  // `box-shadow` do anel de pulso.
   return (
-    <div className="flex flex-col gap-6 lg:flex-row lg:items-start">
-      <div className="relative mx-auto w-full max-w-[min(88vw,26rem)] lg:mx-0 lg:w-[26rem] lg:shrink-0">
+    <div className="relative flex flex-col gap-6 lg:flex-row lg:items-start">
+      <div
+        ref={boardColumn}
+        className="relative mx-auto w-full max-w-[min(88vw,26rem)] lg:mx-0 lg:w-[26rem] lg:shrink-0"
+      >
         <ChessBoard
           fen={boardFen}
           orientation={orientation}
@@ -219,7 +279,14 @@ export function TreeStage({
           viewOnly={!interactive}
           revision={revision}
           shapes={shapes}
+          matedKing={board.mate ? board.turn : null}
           onMove={handleMove}
+        />
+        {/* Na conclusão o anel é suprimido: confete, pulso do rei, som e painel
+            enfatizado já disparam juntos — o confete é o anel, mil vezes maior. */}
+        <PulseRing
+          tone={message && !message.done ? message.tone : null}
+          seq={message?.seq ?? 0}
         />
         {promotion && (
           <PromotionPicker
@@ -289,6 +356,10 @@ export function TreeStage({
           )}
         </div>
       </div>
+
+      {/* Último filho da raiz, e não da coluna do tabuleiro: o confete cobre a
+          etapa inteira. As partículas continuam nascendo do tabuleiro. */}
+      <Confetti seq={celebration} originRef={boardColumn} />
     </div>
   );
 }
