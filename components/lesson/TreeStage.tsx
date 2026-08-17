@@ -10,7 +10,7 @@ import { teachingShapes } from "@/lib/chess/annotations";
 import { legalDests, toBoardColor } from "@/lib/chess/dests";
 import type { Lesson, MoveTree, Position } from "@/lib/lesson/schema";
 import { judgeMove, throwsWinAway, toUci } from "@/lib/lesson/tree";
-import { useLessonStore, type PanelMessage, type TreeKey } from "@/lib/lesson/store";
+import { restingMessage, useLessonStore, type PanelMessage, type TreeKey } from "@/lib/lesson/store";
 import { playComplete, playForMove, playRefusal, playSuccess } from "@/lib/sound";
 import { Confetti } from "./Confetti";
 import { FeedbackPanel } from "./FeedbackPanel";
@@ -94,12 +94,11 @@ export function TreeStage({
   const boardFen = overlay?.fen ?? end?.fen ?? node?.fen ?? position.fen;
   const lastMove = (overlay?.lastMove ?? end?.lastMove ?? null) as [Key, Key] | null;
   /**
-   * A conclusão sobrevive à navegação entre etapas: `goToStage` apaga a
-   * mensagem viva, e o texto do nó terminal volta daqui. Derivado, e não
-   * reescrito na store ao montar — assim não há efeito nem risco de laço.
+   * O desfecho sobrevive à navegação entre etapas: `goToStage` apaga a mensagem
+   * viva, e o texto — conclusão ou tentativa encerrada — volta da árvore.
+   * Derivado, e não reescrito na store ao montar: sem efeito, sem risco de laço.
    */
-  const panel: PanelMessage | null =
-    message ?? (end ? { tone: "good", text: end.text, done: true, seq: 0 } : null);
+  const panel: PanelMessage | null = message ?? restingMessage(state);
 
   useEffect(() => () => (timer.current ? clearTimeout(timer.current) : undefined), []);
 
@@ -170,8 +169,9 @@ export function TreeStage({
         playRefusal();
         const fatal = moveLimit !== undefined && throwsWinAway(verdict);
         if (fatal) {
-          treeFail(treeKey);
-          say("bad", `${verdict.text} Sem a vitória não há o que treinar: a tentativa acabou.`, dest);
+          const text = `${verdict.text} Sem a vitória não há o que treinar: a tentativa acabou.`;
+          treeFail(treeKey, { tone: "bad", text });
+          say("bad", text, dest);
         } else {
           say(verdict.preservesWin ? "warn" : "bad", verdict.text, dest);
         }
@@ -223,11 +223,9 @@ export function TreeStage({
         treeAdvance(treeKey, next);
         setBusy(false);
         if (outOfMoves) {
-          treeFail(treeKey);
-          say(
-            "warn",
-            `O teto de ${moveLimit} lances acabou e o mate não saiu. Recomece: o método precisa caber no limite.`,
-          );
+          const text = `O teto de ${moveLimit} lances acabou e o mate não saiu. Recomece: o método precisa caber no limite.`;
+          treeFail(treeKey, { tone: "warn", text });
+          say("warn", text);
         }
       }, REPLY_DELAY_MS);
     },

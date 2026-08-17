@@ -71,6 +71,16 @@ export type TreeEnd = {
   text: string;
 };
 
+/**
+ * Por que a tentativa acabou. A posição não precisa ser guardada como no `end`
+ * — o nó parado já é a certa —, mas o texto sim: sem ele o aluno volta à etapa
+ * e encontra o botão de recomeçar sem saber o que errou.
+ */
+export type TreeFailure = {
+  tone: MessageTone;
+  text: string;
+};
+
 export type TreeState = {
   nodeId: string;
   rootId: string;
@@ -82,6 +92,8 @@ export type TreeState = {
   hintOpen: boolean;
   /** Preenchido só quando `status` é `done`. */
   end: TreeEnd | null;
+  /** Preenchido só quando `status` é `failed`. */
+  failure: TreeFailure | null;
 };
 
 function freshTree(rootId: string, attempt = 1): TreeState {
@@ -93,7 +105,24 @@ function freshTree(rootId: string, attempt = 1): TreeState {
     status: "playing",
     hintOpen: false,
     end: null,
+    failure: null,
   };
+}
+
+/**
+ * A mensagem que a etapa reencontra ao ser remontada. `goToStage` apaga a
+ * mensagem viva — é uma só para a aula inteira —, e sair de uma etapa desmonta
+ * o componente dela. O que sobrevive é o desfecho guardado na árvore: a
+ * conclusão do mate ou a explicação da tentativa encerrada.
+ *
+ * `seq` 0 porque não é evento novo: é o estado em que a etapa ficou. Quem
+ * anuncia mudança é a mensagem viva, que tem precedência sobre esta.
+ */
+export function restingMessage(tree: TreeState | undefined): PanelMessage | null {
+  if (!tree) return null;
+  if (tree.end) return { tone: "good", text: tree.end.text, done: true, seq: 0 };
+  if (tree.failure) return { tone: tree.failure.tone, text: tree.failure.text, seq: 0 };
+  return null;
 }
 
 type LessonStore = {
@@ -122,7 +151,8 @@ type LessonStore = {
    * `end` é obrigatório na prática, porque é a única cópia da posição do mate.
    */
   treeAdvance: (key: TreeKey, nextNodeId: string | null, end?: TreeEnd) => void;
-  treeFail: (key: TreeKey) => void;
+  /** Encerra a tentativa. `reason` é o texto que o painel reencontra depois. */
+  treeFail: (key: TreeKey, reason?: TreeFailure) => void;
   treeRestart: (key: TreeKey) => void;
   toggleHint: (key: TreeKey) => void;
 };
@@ -185,11 +215,16 @@ export const useLessonStore = create<LessonStore>((set) => ({
       };
     }),
 
-  treeFail: (key) =>
+  treeFail: (key, reason) =>
     set((state) => {
       const tree = state.trees[key];
       if (!tree) return state;
-      return { trees: { ...state.trees, [key]: { ...tree, status: "failed" } } };
+      return {
+        trees: {
+          ...state.trees,
+          [key]: { ...tree, status: "failed", failure: reason ?? null },
+        },
+      };
     }),
 
   treeRestart: (key) =>

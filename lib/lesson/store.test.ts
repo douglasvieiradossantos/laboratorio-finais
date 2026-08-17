@@ -4,7 +4,8 @@ import path from "node:path";
 import test from "node:test";
 import { Chess } from "chess.js";
 import { lessonSchema, type MoveTree } from "./schema.ts";
-import { useLessonStore, type TreeKey, type TreeState } from "./store.ts";
+import { restingMessage, useLessonStore, type TreeKey, type TreeState } from "./store.ts";
+import { judgeMove, throwsWinAway } from "./tree.ts";
 
 /**
  * A store da aula vista de fora, como o `TreeStage` a usa. O que se cobra aqui
@@ -53,6 +54,33 @@ function playScriptedLine(key: TreeKey, tree: MoveTree) {
   }
 }
 
+function legalMoves(fen: string): string[] {
+  return new Chess(fen)
+    .moves({ verbose: true })
+    .map((move) => `${move.from}${move.to}${move.promotion ?? ""}`);
+}
+
+/**
+ * Abre a etapa e caminha pelo roteiro do autor até o primeiro nó em que existe
+ * um lance legal fora de `winningMoves` — o lance que encerra a tentativa.
+ * Devolve o nó parado e esse lance.
+ */
+function advanceToLosingChance(key: TreeKey, tree: MoveTree) {
+  useLessonStore.getState().open(lesson.id, key, { [key]: tree.root });
+
+  let nodeId = tree.root;
+  for (;;) {
+    const node = tree.nodes[nodeId];
+    const losing = legalMoves(node.fen).find((uci) => !node.winningMoves.includes(uci));
+    if (losing) return { nodeId, node, losing };
+
+    const expect = node.expects.find((e) => !e.generated)!;
+    assert.ok(expect.next, `nenhum nó da linha de ${key} admite lance perdedor`);
+    useLessonStore.getState().treeAdvance(key, expect.next);
+    nodeId = expect.next;
+  }
+}
+
 /**
  * A posição que a etapa desenha ao remontar. Sem o `drawn` local do componente,
  * sobra só o que a store guardou: o nó parado é o **anterior** ao mate, porque
@@ -81,7 +109,63 @@ test("etapa concluída continua concluída depois de sair e voltar", () => {
   );
   assert.equal(drawn, end.fen);
   assert.deepEqual(state.end?.lastMove, end.lastMove);
-  assert.equal(state.end?.text, end.text, "o texto da conclusão volta ao painel");
+
+  const resting = restingMessage(state);
+  assert.equal(resting?.text, end.text, "o texto da conclusão volta ao painel");
+  assert.equal(resting?.done, true, "e volta com o selo de conclusão, não como feedback comum");
+  assert.equal(resting?.tone, "good");
+});
+
+test("tentativa encerrada continua explicada depois de sair e voltar", () => {
+  const solo = lesson.stages.solo!;
+  // Na raiz não há o que errar de fatal: com a torre longe do rei preto, todo
+  // lance legal ainda ganha. O lance que joga a vitória fora aparece um nó
+  // adiante, quando a torre já pode ser capturada.
+  const { node, losing } = advanceToLosingChance("solo", solo);
+  const verdict = judgeMove(lesson, node, losing);
+  assert.ok(verdict.kind !== "method", "um lance fora de `winningMoves` não pode ser o método");
+  assert.ok(throwsWinAway(verdict), "o lance escolhido precisa mesmo jogar a vitória fora");
+
+  const text = `${verdict.text} Sem a vitória não há o que treinar: a tentativa acabou.`;
+  useLessonStore.getState().treeFail("solo", { tone: "bad", text });
+  useLessonStore.getState().say("bad", text, losing.slice(2, 4));
+
+  useLessonStore.getState().goToStage("guided");
+  useLessonStore.getState().goToStage("solo");
+
+  const state = useLessonStore.getState().trees.solo!;
+  assert.equal(state.status, "failed");
+  assert.equal(useLessonStore.getState().message, null, "sair da etapa apaga a mensagem");
+
+  const resting = restingMessage(state);
+  assert.equal(resting?.text, text, "o aluno precisa reencontrar o motivo, não só o botão");
+  assert.equal(resting?.tone, "bad");
+  assert.notEqual(resting?.done, true, "tentativa encerrada não é conclusão: sem selo");
+  assert.equal(
+    fenOnReentry(state, solo),
+    node.fen,
+    "o lance foi recusado, então a posição continua a do nó",
+  );
+});
+
+test("teto de lances estourado: o texto do limite também sobrevive", () => {
+  const solo = lesson.stages.solo!;
+  useLessonStore.getState().open(lesson.id, "solo", { solo: solo.root });
+
+  const text = `O teto de ${solo.moveLimit} lances acabou e o mate não saiu. Recomece: o método precisa caber no limite.`;
+  useLessonStore.getState().treeFail("solo", { tone: "warn", text });
+  useLessonStore.getState().goToStage("guided");
+  useLessonStore.getState().goToStage("solo");
+
+  const resting = restingMessage(useLessonStore.getState().trees.solo);
+  assert.equal(resting?.text, text);
+  assert.equal(resting?.tone, "warn", "o teto avisa, não repreende: o tom é o âmbar");
+});
+
+test("sem desfecho não há mensagem de descanso", () => {
+  useLessonStore.getState().open(lesson.id, "guided", { guided: guided.root });
+  assert.equal(restingMessage(useLessonStore.getState().trees.guided), null);
+  assert.equal(restingMessage(undefined), null, "etapa que nem existe não fala");
 });
 
 test("recomeçar apaga a conclusão e devolve a etapa à raiz", () => {
@@ -91,6 +175,8 @@ test("recomeçar apaga a conclusão e devolve a etapa à raiz", () => {
   const state = useLessonStore.getState().trees.solo!;
   assert.equal(state.status, "playing");
   assert.equal(state.end, null, "a conclusão da tentativa anterior não pode sobreviver");
+  assert.equal(state.failure, null);
+  assert.equal(restingMessage(state), null, "recomeçar limpa o painel junto com a árvore");
   assert.equal(state.nodeId, state.rootId);
   assert.equal(state.studentMoves, 0);
   assert.equal(state.attempt, 2);
