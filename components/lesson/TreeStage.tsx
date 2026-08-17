@@ -10,7 +10,7 @@ import { teachingShapes } from "@/lib/chess/annotations";
 import { legalDests, toBoardColor } from "@/lib/chess/dests";
 import type { Lesson, MoveTree, Position } from "@/lib/lesson/schema";
 import { judgeMove, throwsWinAway, toUci } from "@/lib/lesson/tree";
-import { useLessonStore, type TreeKey } from "@/lib/lesson/store";
+import { useLessonStore, type PanelMessage, type TreeKey } from "@/lib/lesson/store";
 import { playComplete, playForMove, playRefusal, playSuccess } from "@/lib/sound";
 import { Confetti } from "./Confetti";
 import { FeedbackPanel } from "./FeedbackPanel";
@@ -85,7 +85,21 @@ export function TreeStage({
   const status = state?.status ?? "playing";
   const attempt = state?.attempt ?? 1;
   const overlay = drawn?.attempt === attempt ? drawn : null;
-  const boardFen = overlay?.fen ?? node?.fen ?? position.fen;
+  /**
+   * A etapa já concluída. Sair para outra etapa desmonta este componente e leva
+   * junto o `drawn`; sem esta foto guardada na store, o tabuleiro voltaria ao
+   * nó parado — que é o **anterior** ao mate — com a etapa fechada para lances.
+   */
+  const end = state?.end ?? null;
+  const boardFen = overlay?.fen ?? end?.fen ?? node?.fen ?? position.fen;
+  const lastMove = (overlay?.lastMove ?? end?.lastMove ?? null) as [Key, Key] | null;
+  /**
+   * A conclusão sobrevive à navegação entre etapas: `goToStage` apaga a
+   * mensagem viva, e o texto do nó terminal volta daqui. Derivado, e não
+   * reescrito na store ao montar — assim não há efeito nem risco de laço.
+   */
+  const panel: PanelMessage | null =
+    message ?? (end ? { tone: "good", text: end.text, done: true, seq: 0 } : null);
 
   useEffect(() => () => (timer.current ? clearTimeout(timer.current) : undefined), []);
 
@@ -124,9 +138,7 @@ export function TreeStage({
     // Os destaques automáticos (corte e peça pendurada) saem da posição que
     // está na tela, então continuam certos mesmo durante a animação do lance.
     // A etapa 4 não recebe nenhum: é lá que o domínio é aferido.
-    const list: DrawShape[] = allowHelp
-      ? teachingShapes(boardFen, overlay?.lastMove ?? null)
-      : [];
+    const list: DrawShape[] = allowHelp ? teachingShapes(boardFen, lastMove) : [];
     // Os destaques da autoria valem para o nó parado; enquanto o lance está
     // sendo desenhado eles sairiam do lugar, então somem.
     if (allowHelp && !overlay && status === "playing" && node) {
@@ -134,7 +146,7 @@ export function TreeStage({
     }
     if (message?.square) list.push({ orig: message.square as Key, brush: "red" });
     return list;
-  }, [allowHelp, boardFen, overlay, status, node, message]);
+  }, [allowHelp, boardFen, lastMove, overlay, status, node, message]);
 
   const play = useCallback(
     (orig: Key, dest: Key, promoted?: PromotionChoice) => {
@@ -172,10 +184,16 @@ export function TreeStage({
       setDrawn({ fen: afterFen, lastMove: [orig, dest], attempt });
 
       // Nó terminal: o lance deu mate (o gate provou que dá) — a etapa acaba.
+      // A posição do mate vai junto para a store: é a única cópia dela, porque
+      // lance terminal não tem nó de destino.
       if (verdict.next === undefined || verdict.reply === undefined) {
         playComplete();
         setCelebration((c) => c + 1);
-        treeAdvance(treeKey, null);
+        treeAdvance(treeKey, null, {
+          fen: afterFen,
+          lastMove: [orig, dest],
+          text: verdict.feedback,
+        });
         celebrate(verdict.feedback);
         return;
       }
@@ -274,7 +292,7 @@ export function TreeStage({
           orientation={orientation}
           turnColor={board.turn}
           dests={interactive ? board.dests : new Map()}
-          lastMove={overlay?.lastMove ?? null}
+          lastMove={lastMove}
           check={board.check}
           viewOnly={!interactive}
           revision={revision}
@@ -317,7 +335,7 @@ export function TreeStage({
         )}
 
         <FeedbackPanel
-          message={message}
+          message={panel}
           placeholder={
             allowHelp
               ? "Faça o lance no tabuleiro. Errar aqui não custa nada — a resposta vem escrita."
@@ -346,13 +364,15 @@ export function TreeStage({
               Recomeçar do zero
             </LessonButton>
           )}
-          {status === "playing" && state.studentMoves > 0 && (
-            <LessonButton onClick={restart}>Recomeçar a posição</LessonButton>
-          )}
           {status === "done" && onFinish && (
             <LessonButton variant="primary" onClick={onFinish}>
               {finishLabel ?? "Continuar"}
             </LessonButton>
+          )}
+          {/* Também na etapa concluída: é o caminho para refazer a linha — e
+              para rever a comemoração, que não se repete só por voltar aqui. */}
+          {(status === "done" || (status === "playing" && state.studentMoves > 0)) && (
+            <LessonButton onClick={restart}>Recomeçar a posição</LessonButton>
           )}
         </div>
       </div>

@@ -57,6 +57,20 @@ export type PanelMessage = {
 
 export type TreeStatus = "playing" | "done" | "failed";
 
+/**
+ * A foto do fim da etapa. Existe porque o lance que dá mate é terminal: ele não
+ * tem nó de destino, então `nodeId` fica parado no nó **anterior** ao mate e a
+ * posição final não está em lugar nenhum da árvore. Enquanto ela vivia só no
+ * estado local do componente, sair da etapa e voltar ressuscitava a posição
+ * pré-mate com a etapa já fechada para lances — parecia travada.
+ */
+export type TreeEnd = {
+  fen: string;
+  lastMove: [string, string];
+  /** O feedback do nó terminal, para o painel reencontrar a conclusão. */
+  text: string;
+};
+
 export type TreeState = {
   nodeId: string;
   rootId: string;
@@ -66,10 +80,20 @@ export type TreeState = {
   attempt: number;
   status: TreeStatus;
   hintOpen: boolean;
+  /** Preenchido só quando `status` é `done`. */
+  end: TreeEnd | null;
 };
 
 function freshTree(rootId: string, attempt = 1): TreeState {
-  return { nodeId: rootId, rootId, studentMoves: 0, attempt, status: "playing", hintOpen: false };
+  return {
+    nodeId: rootId,
+    rootId,
+    studentMoves: 0,
+    attempt,
+    status: "playing",
+    hintOpen: false,
+    end: null,
+  };
 }
 
 type LessonStore = {
@@ -93,7 +117,11 @@ type LessonStore = {
   clearMessage: () => void;
   /** Apaga só o reforço visual; o texto do painel continua na tela. */
   fadeFlash: () => void;
-  treeAdvance: (key: TreeKey, nextNodeId: string | null) => void;
+  /**
+   * Um lance do aluno aceito. `nextNodeId` `null` é o lance terminal — e aí o
+   * `end` é obrigatório na prática, porque é a única cópia da posição do mate.
+   */
+  treeAdvance: (key: TreeKey, nextNodeId: string | null, end?: TreeEnd) => void;
   treeFail: (key: TreeKey) => void;
   treeRestart: (key: TreeKey) => void;
   toggleHint: (key: TreeKey) => void;
@@ -135,10 +163,11 @@ export const useLessonStore = create<LessonStore>((set) => ({
   fadeFlash: () =>
     set((state) => (state.message ? { message: { ...state.message, square: undefined } } : state)),
 
-  treeAdvance: (key, nextNodeId) =>
+  treeAdvance: (key, nextNodeId, end) =>
     set((state) => {
       const tree = state.trees[key];
       if (!tree) return state;
+      const finished = nextNodeId === null;
       return {
         trees: {
           ...state.trees,
@@ -146,8 +175,11 @@ export const useLessonStore = create<LessonStore>((set) => ({
             ...tree,
             nodeId: nextNodeId ?? tree.nodeId,
             studentMoves: tree.studentMoves + 1,
-            status: nextNodeId === null ? "done" : tree.status,
+            status: finished ? "done" : tree.status,
             hintOpen: false,
+            // Só o lance terminal fecha a etapa; num avanço comum um `end`
+            // solto seria ruído, então nem é lido.
+            end: finished ? (end ?? null) : tree.end,
           },
         },
       };
