@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useSyncExternalStore } from "react";
 import Link from "next/link";
 import type { LessonBundle } from "@/lib/lesson/content";
 import { STAGE_LABEL, STAGE_ORDER, useLessonStore, type StageKey } from "@/lib/lesson/store";
+import { armAudioOnFirstGesture, isSoundOn, setSoundOn, subscribeSound } from "@/lib/sound";
 import { ExampleStage } from "./ExampleStage";
 import { ObjectiveStage } from "./ObjectiveStage";
 import { TreeStage } from "./TreeStage";
@@ -27,6 +28,10 @@ export function LessonPlayer({ bundle }: { bundle: LessonBundle }) {
   const goToStage = useLessonStore((s) => s.goToStage);
 
   const available = STAGE_ORDER.filter((key) => lesson.stages[key] !== undefined);
+
+  // Navegador nenhum toca áudio antes de um gesto. O primeiro toque na página
+  // destrava o som — inclusive o clique que abre a etapa 2, que roda sozinha.
+  useEffect(() => armAudioOnFirstGesture(), []);
 
   useEffect(() => {
     open(lesson.id, available[0] ?? "objective", {
@@ -52,7 +57,10 @@ export function LessonPlayer({ bundle }: { bundle: LessonBundle }) {
         >
           ← todas as aulas
         </Link>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{lesson.title}</h1>
+        <div className="flex items-start justify-between gap-3">
+          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{lesson.title}</h1>
+          <SoundToggle />
+        </div>
       </header>
 
       <nav aria-label="Etapas da aula" className="flex flex-wrap gap-2">
@@ -146,6 +154,26 @@ export function LessonPlayer({ bundle }: { bundle: LessonBundle }) {
         )}
       </section>
     </div>
+  );
+}
+
+/**
+ * Liga e desliga o som. A preferência mora no `localStorage`, fora do React —
+ * por isso `useSyncExternalStore`: no servidor o som é "ligado", e a leitura
+ * real do armazenamento entra na hidratação sem acusar divergência.
+ */
+function SoundToggle() {
+  const on = useSyncExternalStore(subscribeSound, isSoundOn, () => true);
+  return (
+    <button
+      type="button"
+      onClick={() => setSoundOn(!on)}
+      aria-pressed={on}
+      className="min-h-11 shrink-0 rounded-md bg-slate-900 px-3 py-2 text-lg leading-none ring-1 ring-white/10 transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+    >
+      <span aria-hidden>{on ? "🔊" : "🔇"}</span>
+      <span className="sr-only">{on ? "Desligar o som" : "Ligar o som"}</span>
+    </button>
   );
 }
 

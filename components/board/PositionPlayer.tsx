@@ -9,6 +9,7 @@ import { PromotionPicker, type PromotionChoice } from "./PromotionPicker";
 import { legalDests, toBoardColor } from "@/lib/chess/dests";
 import { refusalReason } from "@/lib/chess/refusal";
 import { readOutcome, type GameOutcome } from "@/lib/chess/status";
+import { armAudioOnFirstGesture, playComplete, playForMove, playRefusal } from "@/lib/sound";
 
 type Snapshot = {
   fen: string;
@@ -76,12 +77,22 @@ export function PositionPlayer({
     [refusal],
   );
 
+  useEffect(() => armAudioOnFirstGesture(), []);
+
   const publish = useCallback(
     (lastMove: [Key, Key] | null) => {
       setView((previous) => snapshot(game, lastMove, previous.revision + 1));
     },
     [game],
   );
+
+  /** O som do lance que acabou de entrar no histórico. */
+  const soundLastMove = useCallback(() => {
+    const last = game.history({ verbose: true }).at(-1);
+    if (!last) return;
+    if (game.isCheckmate()) playComplete();
+    else playForMove({ capture: Boolean(last.captured), check: game.isCheck() });
+  }, [game]);
 
   const handleMove = useCallback(
     (orig: Key, dest: Key) => {
@@ -92,6 +103,7 @@ export function PositionPlayer({
       if (candidates.length === 0) {
         // O chessground já mexeu a peça na tela; a revisão a traz de volta —
         // e agora a recusa também diz, por escrito, o que houve.
+        playRefusal();
         setRefusal((previous) => ({
           text: refusalReason(game, orig, dest),
           square: dest,
@@ -107,24 +119,27 @@ export function PositionPlayer({
         return;
       }
       game.move({ from: orig, to: dest });
+      soundLastMove();
       publish([orig, dest]);
     },
-    [game, publish, view.lastMove],
+    [game, publish, soundLastMove, view.lastMove],
   );
 
   const finishPromotion = useCallback(
     (piece: PromotionChoice) => {
       if (!pending) return;
       game.move({ from: pending.orig, to: pending.dest, promotion: piece });
+      soundLastMove();
       setPending(null);
       publish([pending.orig, pending.dest]);
     },
-    [game, pending, publish],
+    [game, pending, publish, soundLastMove],
   );
 
   const cancelPromotion = useCallback(() => {
     setPending(null);
     // Cancelar também devolve a peça — e também não pode ser em silêncio.
+    playRefusal();
     setRefusal((previous) => ({
       text: "Promoção cancelada: o lance não foi feito.",
       seq: (previous?.seq ?? 0) + 1,

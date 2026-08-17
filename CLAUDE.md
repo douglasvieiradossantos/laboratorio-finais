@@ -13,8 +13,11 @@ Ainda não existe motor de aula, trilha nem progresso — isso é F1 em diante.
 ## Gates — rode antes de commitar
 
 ```bash
-npm run typecheck   # next typegen && tsc --noEmit
+npm run typecheck          # next typegen && tsc --noEmit
 npm run lint
+npm test                   # árvore de lances, técnica, recusas e amostras de som
+npm run validate:content   # posições, aulas e ramos gerados
+npm run validate:mutations # o gate de conteúdo testado contra si mesmo
 npm run build
 ```
 
@@ -47,12 +50,56 @@ tipos de rota gerados pelo Next (`LayoutProps`, `PageProps`) e falha.
 - A prop `revision` do `ChessBoard` existe para forçar ressincronização quando
   a FEN não mudou (lance recusado, promoção cancelada). Sem ela a peça fica
   parada onde o aluno soltou.
+- **Nunca animar `transform` nem `opacity` em elemento do chessground.** A
+  posição de cada peça é `style.transform = translate(Xpx,Ypx)` **inline**, e um
+  `@keyframes` ganha da declaração inline pela cascata: a peça salta para o canto
+  do tabuleiro. `opacity` o pacote já usa em `piece.ghost` (0.3) e `piece.fading`
+  (0.5). A propriedade segura é `filter`, que o pacote nunca escreve em
+  `<piece>`, e `drop-shadow()` acompanha o alpha do SVG — o brilho contorna a
+  silhueta da peça, não um quadrado. Ver o `pulso-rei` em `app/globals.css`.
+- **Gancho no host do tabuleiro é `data-*`, nunca `className`.** O chessground
+  escreve `cg-wrap`, `orientation-*` e `manipulable` no *mesmo* elemento cujo
+  `className` o React controla, e só as reescreve na criação e no giro do
+  tabuleiro. Se o React reatribuir `class`, elas somem e o tabuleiro para de
+  funcionar. Atributo `data-*` é escrito isolado — é como a prop `matedKing`
+  entra.
+- **Som de lance, captura ou xeque não pode passar de 620 ms.** É o
+  `REPLY_DELAY_MS` do `TreeStage`, o intervalo entre o lance do aluno e a resposta
+  do defensor: som mais longo que isso transforma os dois lances em lama. É teto
+  medível, e o `lib/sound-catalog.test.ts` o cobra.
+- **Os seis sons são sintetizados, e não há nenhum arquivo de áudio no projeto.**
+  A tentativa com amostras gravadas CC0 foi feita e reprovada na audição; a camada
+  de carga saiu com elas. Antes de propor arquivos de áudio de novo, leia a seção
+  "Som" do README — a busca de licença já foi feita e o resultado está registrado.
 
-## Verificação visual
+## Verificação visual e sonora
 
 Conferir tabuleiro é conferir imagem — mande um subagente com o Playwright
 olhar e devolver medidas em texto, em vez de puxar screenshot para o thread
 principal.
+
+Som é pior: robô não tem saída de áudio. A rota `/sons` existe para isso — ela
+renderiza cada síntese num `OfflineAudioContext` e mede envelope e espectro por
+`lib/spectrum.ts` (ataque, queda de 20 e 40 dB, pico, RMS, centro espectral no
+ataque e na cauda, achatamento, parciais), tudo legível como texto. O veredito
+final é humano, no alto-falante de um celular, e leva vinte segundos ali em vez de
+uma aula inteira jogada até o mate.
+
+Duas armadilhas de medição de som, aprendidas medindo:
+
+- **Confie no RMS, não no pico.** As camadas de ruído usam `Math.random()`, então
+  o pico oscila ~1,5 dB entre renderizações da *mesma* síntese. Ajustar
+  equilíbrio por diferença de 1 dB no pico é ajustar por sorteio.
+- **O centro espectral é média sobre todos os bins**, e existem ~900 acima de
+  2 kHz contra ~90 abaixo. Uma prateleira de ruído passa-alta domina a média e
+  manda o centroide para 7 kHz sem que o som fique "brilhante" no sentido útil —
+  use `bandpass` com `q` quando quiser acrescentar ar. Comparar achatamento com
+  uma referência em MP3 também engana: o codec corta o agudo e baixa o número.
+
+Toda animação nova mora em `app/globals.css`, na seção "Animações da aula", e
+**toda** declaração `animation:` fica dentro de
+`@media (prefers-reduced-motion: no-preference)` — guarda por adesão, para
+esquecer a guarda falhar para o lado seguro (nada anima).
 
 <!-- BEGIN:nextjs-agent-rules -->
 

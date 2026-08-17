@@ -1,1 +1,7 @@
 * text=auto eol=lf
+
+# Guarda preventiva: hoje não existe nenhum arquivo de áudio no projeto (os seis
+# efeitos são sintetizados), mas se um dia entrar um WAV sem esta linha o
+# `text=auto` acima pode tratá-lo como texto e trocar CRLF por LF dentro do
+# binário, corrompendo o arquivo em silêncio. A linha custa nada e o bug é chato.
+*.wav binary
