@@ -37,6 +37,62 @@ editorial:
 | `chess-steps-3-6.pdf` | Chess Steps, cadernos 3 a 6 |
 | `philidor-analyse.pdf` | Philidor e edições históricas |
 
+## Inventário medido em 2026-08-18
+
+Os PDFs não são versionados, então esta tabela é o único registro de **quais
+deles um subagente consegue de fato ler**. O teste é `pdftotext -f N -l N+4
+arquivo.pdf -` em cinco páginas do meio: zero caractere significa que a página é
+foto e precisa de OCR antes de servir para qualquer coisa.
+
+| Arquivo | Pág. | Estado |
+|---|---|---|
+| `capablanca-chess-fundamentals-1921.pdf` | 270 | legível |
+| `kling-horwitz-chess-studies-1851-mott.pdf` | 260 | legível |
+| `nunn-understanding-chess-endgames.pdf` | 234 | legível |
+| `rabinovich-russian-endgame-handbook.pdf` | 525 | legível |
+| `de-la-villa-100-endgames-workbook.pdf` | 286 | legível |
+| `de-la-villa-100-basic-endgames-amostra.pdf` | 31 | legível (é excerto, não o livro) |
+| `silman-complete-endgame-course.pdf` | 543 | **só imagem** |
+| `muller-lamprecht-fundamental-chess-endings.pdf` | 418 | **só imagem** |
+| `de-la-villa-100-endgames.pdf` | 249 | **só imagem** |
+| `pandolfini-endgame-course.pdf` | 162 | **só imagem** |
+| `muller-chess-endgames-for-kids.pdf` | 130 | **só imagem** |
+| `averbakh-essential-knowledge.pdf` | 59 | **só imagem** |
+
+Os seis que precisam de OCR são **todos referência didática**, e nenhum deles
+autoriza tirar posição — não travam o garimpo. As duas fontes de posição estão
+legíveis.
+
+Nunn, Müller (×2) e Pandolfini **não estão no corpus do currículo (§12)**. Ficam
+aqui porque o autor os tem; o `docs/SOURCE-CORPUS.md`, quando nascer, decide se
+entram como referência didática ou saem.
+
+## De onde vieram as duas fontes de posição
+
+Ambas em domínio público, conferidas página a página antes de entrar:
+
+- **Capablanca, _Chess Fundamentals_, 1921, Harcourt Brace, Nova York** —
+  <https://archive.org/details/cu31924014756724>. OCR ABBYY, 270 páginas com
+  numeração de página real. **Não usar a versão do Project Gutenberg**
+  (ebook 33870): não tem PDF e não tem número de página, e a proveniência exige
+  página.
+- **Kling & Horwitz, _Chess Studies; or, Endings of Games_, edição de Henry C.
+  Mott** — <https://archive.org/details/bub_gb_5ZACAAAAQAAJ>. A outra cópia que
+  aparece primeiro nas buscas (`chessstudiesore00horwgoog`) é o mesmo livro
+  **sem camada de texto**; foi baixada, testada com zero caractere e descartada.
+
+**Divergência aberta com o currículo:** a §12 pede Kling & Horwitz na 2ª edição
+de 1889 revista por William Wayte. O que existe com camada de texto é a 1ª
+edição, de Mott. As duas são domínio público e citáveis, mas a proveniência tem
+de dizer a verdade — ou o currículo aceita a de Mott, ou a de 1889 precisa ser
+caçada. Decisão do autor, ainda não tomada.
+
+O OCR das duas é bom para localizar posição e página, e **ruim para ler lance**:
+Capablanca sai com `Q-- Kt2` onde está `Q-Kt2`, e `i8` onde está `18`. As duas
+usam notação descritiva (`P-K4`), não algébrica. É exatamente para isso que o
+campo `fenMethod` da proveniência existe — nenhuma FEN sai do OCR sem
+verificação.
+
 ## Regras de arquivo
 
 - **Um PDF por obra**, nome em minúsculas com hífens, como na tabela.
