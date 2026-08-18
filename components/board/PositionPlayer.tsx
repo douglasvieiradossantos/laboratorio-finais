@@ -206,7 +206,7 @@ export function PositionPlayer({
         aria-live="polite"
         role="status"
         className={`text-center text-sm font-medium ${
-          refusal?.tone === "bad" ? "text-erro-texto" : "text-tinta-fraca"
+          refusal?.tone === "bad" ? "text-erro-texto" : "text-tinta-media"
         }`}
       >
         <span key={refusal ? `refusal-${refusal.seq}` : "status"}>

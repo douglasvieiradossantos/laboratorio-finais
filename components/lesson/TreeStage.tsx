@@ -320,11 +320,11 @@ export function TreeStage({
 
       <div className="flex flex-1 flex-col gap-4">
         {intro && status === "playing" && (
-          <p className="text-sm leading-relaxed text-tinta-fraca">{intro}</p>
+          <p className="text-sm leading-relaxed text-tinta-media">{intro}</p>
         )}
 
         {moveLimit !== undefined && (
-          <p className="rotulo text-tinta-apagada">
+          <p className="rotulo text-tinta-fraca">
             Lance {state.studentMoves} de {moveLimit}
             {state.attempt > 1 && ` · tentativa ${state.attempt}`}
           </p>

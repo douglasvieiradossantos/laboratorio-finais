@@ -43,7 +43,7 @@ export function MasterySeal({
       {report.missing.length > 0 && (
         <ul className="flex flex-col gap-2">
           {report.missing.map((item) => (
-            <li key={item.stage} className="flex gap-2 text-sm leading-relaxed text-tinta-fraca">
+            <li key={item.stage} className="flex gap-2 text-sm leading-relaxed text-tinta-media">
               <span aria-hidden className="select-none text-tinta-muda">
                 —
               </span>

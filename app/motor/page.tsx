@@ -20,12 +20,12 @@ export default function PaginaDoMotor() {
       <header className="flex flex-col gap-2">
         <Link
           href="/"
-          className="text-xs font-medium text-tinta-apagada transition hover:text-tinta-fraca"
+          className="text-xs font-medium text-tinta-fraca transition hover:text-tinta-media"
         >
           ← todas as aulas
         </Link>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Motor da etapa 5</h1>
-        <p className="max-w-prose text-sm leading-relaxed text-tinta-tenue">
+        <h1 className="titulo">Motor da etapa 5</h1>
+        <p className="max-w-prose text-sm leading-relaxed text-tinta-fraca">
           O Stockfish carregado como a aula o carrega, com a mesma força e o mesmo
           tempo de busca do arquivo da aula. O número que importa é o pior tempo
           por lance — o alvo do plano é sair em ≤ 2&nbsp;s no celular, e o

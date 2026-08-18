@@ -194,7 +194,7 @@ export function EngineLab() {
       {linhas.length > 0 && (
         <section className="overflow-x-auto rounded-lg border border-borda bg-carta">
           <table className="w-full min-w-136 text-left text-sm">
-            <thead className="border-b border-borda text-xs uppercase tracking-wide text-tinta-apagada">
+            <thead className="border-b border-borda text-xs uppercase tracking-wide text-tinta-fraca">
               <tr>
                 <th className="px-4 py-2 font-medium">Posição</th>
                 <th className="px-4 py-2 font-medium">Skill</th>
@@ -205,7 +205,7 @@ export function EngineLab() {
             </thead>
             <tbody className="divide-y divide-borda-fraca">
               {linhas.map((linha, i) => (
-                <tr key={i} className={linha.erro ? "text-erro-texto" : "text-tinta-fraca"}>
+                <tr key={i} className={linha.erro ? "text-erro-texto" : "text-tinta-media"}>
                   <td className="px-4 py-2">{linha.caso}</td>
                   <td className="px-4 py-2 tabular-nums">{linha.skill}</td>
                   <td className="px-4 py-2 tabular-nums">{linha.moveTimeMs} ms</td>
@@ -223,7 +223,7 @@ export function EngineLab() {
       <p
         aria-live="polite"
         role="status"
-        className="text-sm leading-relaxed text-tinta-tenue"
+        className="text-sm leading-relaxed text-tinta-fraca"
         data-engine-status={status}
         data-engine-load-ms={loadMs ?? ""}
         data-engine-rows={linhas.length}
@@ -243,8 +243,8 @@ export function EngineLab() {
 function Campo({ rotulo, valor }: { rotulo: string; valor: string }) {
   return (
     <div className="flex justify-between gap-4 border-b border-borda-fraca py-1 sm:border-0">
-      <dt className="text-tinta-apagada">{rotulo}</dt>
-      <dd className="font-mono text-tinta-fraca">{valor}</dd>
+      <dt className="text-tinta-fraca">{rotulo}</dt>
+      <dd className="font-mono text-tinta-media">{valor}</dd>
     </div>
   );
 }
@@ -265,7 +265,7 @@ function Numero({
   onChange: (valor: number) => void;
 }) {
   return (
-    <label className="flex flex-col gap-1 text-xs text-tinta-tenue">
+    <label className="flex flex-col gap-1 text-xs text-tinta-fraca">
       {rotulo}
       <input
         type="number"

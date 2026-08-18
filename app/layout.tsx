@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Inter, Newsreader } from "next/font/google";
 import "@lichess-org/chessground/assets/chessground.base.css";
 import "@lichess-org/chessground/assets/chessground.brown.css";
 import "@lichess-org/chessground/assets/chessground.cburnett.css";
@@ -10,6 +10,21 @@ const inter = Inter({
   subsets: ["latin"],
 });
 
+/**
+ * A serifa do título. Só o título: um Newsreader de 14 px lê pior que a Inter
+ * de 14 px, e o corpo da aula tem exatamente 14 px. A serifa entra onde o
+ * tamanho a sustenta — ver a utilitária `titulo` em `app/globals.css`.
+ *
+ * O português cabe no subconjunto latino (á à â ã ç é ê í ó ô õ ú estão todos
+ * no Latin-1), então `latin-ext` seria arquivo em disco sem download. São
+ * 56,8 KB, medidos na build.
+ */
+const newsreader = Newsreader({
+  variable: "--font-serif",
+  subsets: ["latin"],
+  display: "swap",
+});
+
 export const metadata: Metadata = {
   title: "Laboratório de Finais",
   description:
@@ -17,12 +32,19 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0f172a",
+  // O papel da identidade, em hexadecimal porque a barra do navegador não lê
+  // `var()`. É o único lugar do projeto onde uma cor é digitada duas vezes;
+  // `lib/tema/guardas.test.ts` cobra que as duas continuem iguais.
+  themeColor: "#ebf0ec",
+  // Sem isto o Android escurece por conta própria os controles nativos — barra
+  // de rolagem, campo de número do laboratório do motor — dentro de uma página
+  // clara. Faltava desde a F0, e só agora tem resposta certa para dar.
+  colorScheme: "light",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
-    <html lang="pt-BR" className={`${inter.variable} h-full antialiased`}>
+    <html lang="pt-BR" className={`${inter.variable} ${newsreader.variable} h-full antialiased`}>
       <body className="flex min-h-full flex-col bg-papel text-tinta">
         {children}
       </body>

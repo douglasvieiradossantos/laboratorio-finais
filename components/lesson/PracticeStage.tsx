@@ -362,10 +362,10 @@ export function PracticeStage({
 
       <div className="flex flex-1 flex-col gap-4">
         {intro && verdict.kind === "playing" && (
-          <p className="text-sm leading-relaxed text-tinta-fraca">{intro}</p>
+          <p className="text-sm leading-relaxed text-tinta-media">{intro}</p>
         )}
 
-        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 rotulo text-tinta-apagada">
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 rotulo text-tinta-fraca">
           {/* O empate por falta de progresso deixa de cair do céu no lance 100. */}
           <span>
             Sem progresso: {progress.used} de {progress.limit}

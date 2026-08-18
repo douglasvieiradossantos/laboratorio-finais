@@ -48,7 +48,7 @@ export function PromotionPicker({
         <button
           type="button"
           onClick={onCancel}
-          className="rounded-md px-3 text-sm text-tinta-tenue transition hover:text-tinta"
+          className="rounded-md px-3 text-sm text-tinta-fraca transition hover:text-tinta"
         >
           Cancelar
         </button>

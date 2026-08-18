@@ -12,7 +12,7 @@ const TONE: Record<MessageTone | "conclusao", string> = {
   good: "border-metodo-superficie/40 bg-metodo-superficie/10 text-metodo-tinta",
   bad: "border-erro-superficie/40 bg-erro-superficie/10 text-erro-tinta",
   warn: "border-aviso-superficie/40 bg-aviso-superficie/10 text-aviso-tinta",
-  neutral: "border-borda bg-carta text-tinta-fraca",
+  neutral: "border-borda bg-carta text-tinta-media",
   conclusao: "border-metodo/70 bg-metodo-superficie/20 text-metodo-tinta-alta ring-1 ring-metodo/30",
 };
 
@@ -58,7 +58,7 @@ export function FeedbackPanel({
           {message.text}
         </span>
       ) : (
-        <span className="text-tinta-tenue">{placeholder ?? ""}</span>
+        <span className="text-tinta-fraca">{placeholder ?? ""}</span>
       )}
     </div>
   );

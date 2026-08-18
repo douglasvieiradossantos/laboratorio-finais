@@ -3,10 +3,11 @@ import test from "node:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { blocosDe, lerFolha, temaRaiz } from "./css.ts";
+import { hex } from "./cor.ts";
+import { blocosDe, corDeToken, lerFolha, temaRaiz } from "./css.ts";
 
 /**
- * Os cinco guardas da camada de tokens. Cada um existe porque a falha que ele
+ * Os seis guardas da camada de tokens. Cada um existe porque a falha que ele
  * pega é **silenciosa** — nada quebra, nada avisa, e a tela fica errada.
  *
  * Não são testes de contraste: nenhum deles mede cor. São testes de que a
@@ -32,6 +33,15 @@ function fontes(): { caminho: string; texto: string }[] {
   andar("components");
   return achados;
 }
+
+/**
+ * Apaga comentários de bloco, preservando as quebras de linha para o número da
+ * linha continuar batendo. Um nome de classe dentro de um comentário não gera
+ * classe nenhuma — e o comentário que **explica** este guarda cita
+ * `bg-slate-900` de propósito, o que o fazia acusar a própria documentação.
+ */
+const semBlocos = (texto: string): string =>
+  texto.replace(/\/\*[\s\S]*?\*\//g, (bloco) => bloco.replace(/[^\n]/g, " "));
 
 const FAMILIAS =
   "slate|gray|zinc|neutral|stone|red|orange|amber|yellow|lime|green|emerald|teal|cyan|sky|blue|indigo|violet|purple|fuchsia|pink|rose|white|black";
@@ -65,7 +75,7 @@ test("zero classes de cor crua em `app/` e `components/`", () => {
 
   const achados: string[] = [];
   for (const { caminho, texto } of fontes()) {
-    for (const linha of texto.split("\n").entries()) {
+    for (const linha of semBlocos(texto).split("\n").entries()) {
       const [i, conteudo] = linha;
       for (const m of [...conteudo.matchAll(cruas), ...conteudo.matchAll(arbitrarias)]) {
         achados.push(`${caminho}:${i + 1} — ${m[0]}`);
@@ -162,4 +172,26 @@ test("cada direção candidata redefine a paleta inteira", () => {
     const faltando = daRaiz.filter((token) => !declarados.has(token));
     assert.deepEqual(faltando, [], `a direção "${direcao}" não redefine estes tokens`);
   }
+});
+
+test("os hexadecimais que vivem fora do CSS batem com os tokens", () => {
+  // Duas cores do projeto precisam existir em hexadecimal, e não há como
+  // evitá-las: a barra do navegador lê `themeColor` do metadata, e o favicon é
+  // lido fora do documento, sem `var()`. São os dois únicos lugares onde uma
+  // cor é digitada duas vezes — e é exatamente o tipo de par que se desfaz
+  // calado quando alguém mexe na paleta e esquece do outro lado.
+  const vars = temaRaiz(lerFolha(FOLHA));
+  const token = (nome: string): string => hex(corDeToken(nome, vars));
+
+  const layout = readFileSync(join(RAIZ, "app/layout.tsx"), "utf8");
+  const themeColor = /themeColor:\s*"(#[0-9a-fA-F]{3,8})"/.exec(layout)?.[1];
+  assert.equal(themeColor, token("papel"), "o `themeColor` saiu de sincronia com `papel`");
+
+  const icone = readFileSync(join(RAIZ, "app/icon.svg"), "utf8");
+  const usados = [...icone.matchAll(/fill="(#[0-9a-fA-F]{3,8})"/g)].map((m) => m[1]);
+  assert.deepEqual(
+    usados,
+    [token("metodo-cheio"), token("papel")],
+    "as cores do `icon.svg` saíram de sincronia com os tokens",
+  );
 });

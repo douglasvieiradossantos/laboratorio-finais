@@ -77,12 +77,12 @@ export function LessonPlayer({ bundle }: { bundle: LessonBundle }) {
       <header className="flex flex-col gap-2">
         <Link
           href="/"
-          className="text-xs font-medium text-tinta-apagada transition hover:text-tinta-fraca"
+          className="text-xs font-medium text-tinta-fraca transition hover:text-tinta-media"
         >
           ← todas as aulas
         </Link>
         <div className="flex items-start justify-between gap-3">
-          <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">{lesson.title}</h1>
+          <h1 className="titulo">{lesson.title}</h1>
           <SoundToggle />
         </div>
       </header>
@@ -99,14 +99,14 @@ export function LessonPlayer({ bundle }: { bundle: LessonBundle }) {
               className={`min-h-11 rounded-md px-3 py-2 text-sm font-medium ring-1 transition foco ${
                 active
                   ? "bg-metodo-cheio text-tinta-inversa ring-metodo/30"
-                  : "bg-carta text-tinta-fraca ring-borda hover:bg-carta-alta"
+                  : "bg-carta text-tinta-media ring-borda hover:bg-carta-alta"
               }`}
             >
               {/* O numeral recua **só** na aba inativa. Na ativa ele herda a
                   tinta do botão: a aba cheia já é a barulhenta da fila, e um
                   cinza de fundo claro sobre o verde cheio media 1,39:1 — a pior
                   reprovação que a régua achou no B6.1. */}
-              <span className={`tabular-nums ${active ? "" : "text-tinta-tenue"}`}>
+              <span className={`tabular-nums ${active ? "" : "text-tinta-fraca"}`}>
                 {index + 1}.
               </span>{" "}
               {STAGE_LABEL[key]}

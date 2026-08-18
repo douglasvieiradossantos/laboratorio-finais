@@ -14,11 +14,11 @@ export default function TabuleiroLivre() {
   return (
     <main className="mx-auto flex w-full max-w-3xl flex-1 flex-col gap-8 px-4 py-8 sm:py-12">
       <header className="flex flex-col gap-2">
-        <Link href="/" className="text-xs font-medium text-tinta-apagada transition hover:text-tinta-fraca">
+        <Link href="/" className="text-xs font-medium text-tinta-fraca transition hover:text-tinta-media">
           ← todas as aulas
         </Link>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Tabuleiro livre</h1>
-        <p className="max-w-prose text-sm leading-relaxed text-tinta-tenue">
+        <h1 className="titulo">Tabuleiro livre</h1>
+        <p className="max-w-prose text-sm leading-relaxed text-tinta-fraca">
           Rei e peão contra rei, com as regras validadas de verdade. Você move
           os dois lados; lance ilegal é recusado com o motivo escrito abaixo do
           tabuleiro.

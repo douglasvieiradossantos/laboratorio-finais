@@ -45,7 +45,7 @@ export function ReviewStage({
 
   if (!practice) {
     return (
-      <p className="rounded-lg border border-borda bg-carta px-4 py-6 text-sm leading-relaxed text-tinta-tenue">
+      <p className="rounded-lg border border-borda bg-carta px-4 py-6 text-sm leading-relaxed text-tinta-fraca">
         Esta aula não tem prática real configurada, então a revisão não sabe contra que
         computador jogar.
       </p>
@@ -55,7 +55,7 @@ export function ReviewStage({
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-3">
-        <p className="text-sm leading-relaxed text-tinta-fraca">
+        <p className="text-sm leading-relaxed text-tinta-media">
           Posições novas, para provar que a técnica ficou. Mesmo computador da prática
           real — o que muda é que você nunca viu estas posições.
         </p>
@@ -75,7 +75,7 @@ export function ReviewStage({
                     className={`min-h-11 rounded-md px-3 py-2 text-sm font-medium ring-1 transition foco ${
                       ativa
                         ? "bg-metodo-cheio text-tinta-inversa ring-metodo/30"
-                        : "bg-carta text-tinta-fraca ring-borda hover:bg-carta-alta"
+                        : "bg-carta text-tinta-media ring-borda hover:bg-carta-alta"
                     }`}
                   >
                     Posição {i + 1}
@@ -85,7 +85,7 @@ export function ReviewStage({
                 );
               })}
             </nav>
-            <p className="rotulo text-tinta-apagada">
+            <p className="rotulo text-tinta-fraca">
               {vencidas} de {ids.length} revisada(s)
             </p>
           </>

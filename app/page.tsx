@@ -22,8 +22,8 @@ export default function Home() {
         <p className="text-xs font-semibold uppercase tracking-[0.2em] text-metodo">
           Nível 0 — os mates elementares
         </p>
-        <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Laboratório de Finais</h1>
-        <p className="max-w-prose text-sm leading-relaxed text-tinta-tenue">
+        <h1 className="titulo">Laboratório de Finais</h1>
+        <p className="max-w-prose text-sm leading-relaxed text-tinta-fraca">
           Cada competência é uma aula em etapas: ver o objetivo, acompanhar a
           técnica, executar com ajuda e executar sozinho. Você aprende no
           tabuleiro, não no vídeo.
@@ -37,7 +37,7 @@ export default function Home() {
             return (
               <li
                 key={item.id}
-                className="rounded-lg border border-borda-fraca bg-carta/40 px-4 py-4 text-tinta-apagada"
+                className="rounded-lg border border-borda-fraca bg-carta/40 px-4 py-4 text-tinta-fraca"
               >
                 <p className="text-sm font-medium">{item.title}</p>
                 <p className="mt-1 text-xs">
@@ -53,7 +53,7 @@ export default function Home() {
                 className="flex min-h-16 flex-col justify-center rounded-lg border border-borda bg-carta px-4 py-4 transition hover:border-metodo-superficie/40 hover:bg-carta-alta foco"
               >
                 <p className="text-sm font-semibold text-tinta">{lesson.title}</p>
-                <p className="mt-1 text-xs text-tinta-tenue">
+                <p className="mt-1 text-xs text-tinta-fraca">
                   <span className="font-mono">{lesson.id}</span> — {lesson.stages} etapas
                 </p>
               </Link>
@@ -62,11 +62,11 @@ export default function Home() {
         })}
       </ul>
 
-      <footer className="mt-auto border-t border-borda-fraca pt-4 text-xs text-tinta-apagada">
+      <footer className="mt-auto border-t border-borda-fraca pt-4 text-xs text-tinta-fraca">
         As posições desta fase ainda são fixtures técnicas, marcadas como tal e
         proibidas de publicar — o garimpo com proveniência entra no próximo
         bloco.{" "}
-        <Link href="/tabuleiro" className="underline transition hover:text-tinta-fraca">
+        <Link href="/tabuleiro" className="underline transition hover:text-tinta-media">
           Tabuleiro livre
         </Link>
         .

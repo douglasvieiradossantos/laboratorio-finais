@@ -122,7 +122,7 @@ export function SoundLab() {
           </button>
         </div>
 
-        <p aria-live="polite" className="text-xs leading-relaxed text-tinta-tenue">
+        <p aria-live="polite" className="text-xs leading-relaxed text-tinta-fraca">
           <span data-teste="estado-contexto">
             {contexto === "rodando"
               ? "Contexto de áudio: rodando."
@@ -150,18 +150,18 @@ export function SoundLab() {
           >
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2 className="text-lg font-semibold tracking-tight">{effect.title}</h2>
-              <p className="rotulo text-tinta-apagada">
+              <p className="rotulo text-tinta-fraca">
                 teto {effect.maxDurationMs} ms ·{" "}
                 <span data-teste={`escolhido-${effect.name}`}>toca hoje: {ativa}</span>
                 {effect.variants.length > 1 && ` · ${effect.variants.length} variantes`}
               </p>
             </div>
 
-            <p className="max-w-prose text-sm leading-relaxed text-tinta-tenue">{effect.when}</p>
+            <p className="max-w-prose text-sm leading-relaxed text-tinta-fraca">{effect.when}</p>
 
             {effect.reference && (
-              <p className="max-w-prose rounded-md border border-borda-fraca bg-papel/40 px-3 py-2 text-xs leading-relaxed text-tinta-apagada">
-                <strong className="font-semibold text-tinta-tenue">
+              <p className="max-w-prose rounded-md border border-borda-fraca bg-papel/40 px-3 py-2 text-xs leading-relaxed text-tinta-fraca">
+                <strong className="font-semibold text-tinta-fraca">
                   Alvo, medido em {effect.reference.source}:
                 </strong>{" "}
                 {effect.reference.lesson}
@@ -196,9 +196,9 @@ export function SoundLab() {
         );
       })}
 
-      <p className="max-w-prose text-xs leading-relaxed text-tinta-apagada">
-        <strong className="font-semibold text-tinta-tenue">Confie no RMS, não no pico.</strong> As
-        camadas de ruído usam <code className="text-tinta-tenue">Math.random()</code>, então cada
+      <p className="max-w-prose text-xs leading-relaxed text-tinta-fraca">
+        <strong className="font-semibold text-tinta-fraca">Confie no RMS, não no pico.</strong> As
+        camadas de ruído usam <code className="text-tinta-fraca">Math.random()</code>, então cada
         renderização é uma realização diferente: medindo o mesmo som cinco vezes, o pico variou
         1,5 dB e o RMS 0,65 dB. O equilíbrio entre os efeitos foi ajustado pelo RMS.
       </p>
@@ -234,9 +234,9 @@ function SinteseMedida({
 }) {
   const linha = (rotulo: string, sintetizado: string, alvo?: string) => (
     <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-      <span className="w-40 shrink-0 text-tinta-apagada">{rotulo}</span>
+      <span className="w-40 shrink-0 text-tinta-fraca">{rotulo}</span>
       <span className="tabular-nums text-tinta-media">{sintetizado}</span>
-      {alvo && <span className="tabular-nums text-tinta-apagada">alvo {alvo}</span>}
+      {alvo && <span className="tabular-nums text-tinta-fraca">alvo {alvo}</span>}
     </div>
   );
 
@@ -249,7 +249,7 @@ function SinteseMedida({
       }`}
     >
       <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-2">
-        <span className="font-semibold uppercase tracking-[0.14em] text-tinta-tenue">
+        <span className="font-semibold uppercase tracking-[0.14em] text-tinta-fraca">
           {variante.id} · {variante.title}
         </span>
         {ativa && (
@@ -265,7 +265,7 @@ function SinteseMedida({
         )}
       </div>
 
-      <p className="mb-2 max-w-prose text-tinta-apagada">{variante.note}</p>
+      <p className="mb-2 max-w-prose text-tinta-fraca">{variante.note}</p>
 
       {medida ? (
         <div className="flex flex-col gap-0.5">
@@ -294,7 +294,7 @@ function SinteseMedida({
           )}
         </div>
       ) : (
-        <p className="text-tinta-apagada">
+        <p className="text-tinta-fraca">
           Clique em “Medir as sínteses”. Não precisa de gesto de áudio: a
           renderização é fora do tempo real.
         </p>

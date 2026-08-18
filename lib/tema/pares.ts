@@ -8,31 +8,27 @@
  * si só — tem o contraste do que sobra depois de compor com a página. O selo de
  * conclusão chega a três camadas.
  *
- * **A lista é por combinação, não por sítio.** `text-tinta-apagada` sobre a página
- * aparece em nove lugares e é uma linha só, com os lugares no campo `onde`:
- * medir a mesma dupla nove vezes dá nove vezes o mesmo número e uma tabela
- * ilegível. O que importa é que nenhuma *combinação* escape.
+ * **A lista é por combinação, não por sítio.** `text-tinta-fraca` sobre a
+ * página aparece em treze lugares e é uma linha só, com todos eles no campo
+ * `onde`: medir a mesma dupla treze vezes dá treze vezes o mesmo número e uma
+ * tabela ilegível. O que importa é que nenhuma *combinação* escape.
  *
  * **Isenção é escrita, nunca omitida.** Um par que não precisa bater o piso
  * continua na lista, continua medido e continua impresso — só não reprova. Par
  * omitido é par esquecido; par isento é decisão registrada, com o motivo do
  * lado. Hoje são três, todas de coisa que não carrega informação.
  *
- * **Dívida também é escrita.** Sete combinações do tema em vigor ainda reprovam
- * AA de verdade, de 4,23:1 a 2,46:1. Elas não saem da lista nem viram isenção:
- * ganham o campo `divida` com o número medido e o bloco que as paga, e o teste
- * exige que continuem reprovando. Consertar a cor sem apagar a linha daqui fica
- * vermelho, e o campo esvazia no B6.5 — o delta entre oito e zero *é* a entrega
- * deste bloco.
+ * **Dívida está escrita, e hoje está vazia.** O tema que o site tinha no B6.1
+ * reprovava AA em oito combinações, de 4,23:1 a 1,39:1. Sete foram pagas pela
+ * paleta clara; a oitava, e pior delas, foi paga antes, por conserto de
+ * componente — era tinta encostada num fundo que mudou de claridade embaixo
+ * dela, e nenhuma paleta salvaria isso.
  *
- * Das oito originais, uma já foi paga no B6.3, e não por valor de cor: era
- * tinta encostada num fundo que mudou de claridade embaixo dela — o defeito
- * estava no componente, não na paleta, e nenhuma direção clara passaria
- * enquanto ele existisse.
- *
- * **Dívida vale só para o tema em vigor.** Cada `[data-direcao]` é medido pela
- * mesma lista e sem direito a nenhuma: só chega aos olhos de quem escolhe o
- * que já é legal.
+ * O campo `divida` continua existindo e continua sendo exigente: um par que o
+ * declare **tem** de reprovar, senão o teste fica vermelho. Ele é o caminho
+ * honesto para registrar um defeito conhecido em vez de escondê-lo — e o
+ * caminho de volta, porque consertar a cor sem apagar a linha também reprova.
+ * Que ele esteja vazio é a entrega do B6, não uma propriedade permanente.
  */
 
 /** Piso da WCAG 2.2 para corpo de texto (1.4.3, AA). */
@@ -93,24 +89,16 @@ export const PARES: Par[] = [
     piso: AA_TEXTO,
   },
   {
-    onde: "parágrafo de abertura — app/page.tsx:26, motor:28, sons:28, tabuleiro:21, EngineLab:226 e :268",
-    texto: "tinta-tenue",
-    fundo: PAGINA,
-    piso: AA_TEXTO,
-  },
-  {
-    onde: "corpo da etapa — PracticeStage:365, TreeStage:323, ReviewStage:58, PositionPlayer:209; e o hover dos links de volta",
+    onde: "parágrafo de abertura e rótulo sobre a página — page:26, motor:23 e :28, sons:23 e :28, tabuleiro:17 e :21, EngineLab:226 e :268, ExampleStage:163, PracticeStage:368, TreeStage:327, ReviewStage:88, LessonPlayer:80, rodapé da home",
     texto: "tinta-fraca",
     fundo: PAGINA,
     piso: AA_TEXTO,
   },
   {
-    onde: "rótulo em caixa-alta e link de volta — ExampleStage:163, PracticeStage:368, TreeStage:327, ReviewStage:88, LessonPlayer:80, motor:23, sons:23, tabuleiro:17, rodapé da home",
-    texto: "tinta-apagada",
+    onde: "corpo da etapa e campo de número — PracticeStage:365, TreeStage:323, ReviewStage:58, PositionPlayer:209, EngineLab:277; e o hover dos links de volta",
+    texto: "tinta-media",
     fundo: PAGINA,
     piso: AA_TEXTO,
-    divida:
-      "mede 4,23:1 — a reprovação nomeada no plano, e a de mais sítios: nove. Pago no B6.5.",
   },
   {
     onde: "rótulo do nível na home (app/page.tsx:22)",
@@ -141,30 +129,16 @@ export const PARES: Par[] = [
     piso: AA_TEXTO,
   },
   {
-    onde: "corpo dentro do cartão — EngineLab:142, ExampleStage:169, MasterySeal:37 sem domínio",
+    onde: "corpo, painel neutro e aba inativa dentro do cartão — EngineLab:142, :208 e :247, ExampleStage:169, FeedbackPanel:15, LessonPlayer:102, ReviewStage:78, MasterySeal:37 e :46",
     texto: "tinta-media",
     fundo: CARTA,
     piso: AA_TEXTO,
   },
   {
-    onde: "painel neutro e aba inativa — FeedbackPanel:15, LessonPlayer:102, ReviewStage:78, EngineLab:208 e :247, MasterySeal:46",
+    onde: "texto secundário, cabeçalho de tabela e rótulo dentro do cartão — page:56, FeedbackPanel:61, LessonPlayer:105, ReviewStage:48, PromotionPicker:51, EngineLab:197 e :246, SoundLab:125 e :153",
     texto: "tinta-fraca",
     fundo: CARTA,
     piso: AA_TEXTO,
-  },
-  {
-    onde: "texto secundário no cartão — app/page.tsx:56, FeedbackPanel:61, LessonPlayer:105, ReviewStage:48, PromotionPicker:51, SoundLab:125",
-    texto: "tinta-tenue",
-    fundo: CARTA,
-    piso: AA_TEXTO,
-  },
-  {
-    onde: "cabeçalho de tabela e rótulo dentro do cartão — EngineLab:197 e :246, SoundLab:153",
-    texto: "tinta-apagada",
-    fundo: CARTA,
-    piso: AA_TEXTO,
-    divida:
-      "mede 3,74:1 — a reprovação nomeada no plano. `tinta-apagada` é o nível de cinza que não sobrevive: some contra o cartão. Pago no B6.5, na fusão dos cinco níveis de tinta em três.",
   },
   {
     onde: "erro na tabela do motor (EngineLab:208)",
@@ -173,18 +147,12 @@ export const PARES: Par[] = [
     piso: AA_TEXTO,
   },
   {
-    onde: "campo de número do laboratório do motor (EngineLab:277)",
-    texto: "tinta-media",
-    fundo: PAGINA,
-    piso: AA_TEXTO,
-  },
-  {
     onde: "travessão do que falta no selo (MasterySeal:47)",
     texto: "tinta-muda",
     fundo: CARTA,
     piso: AA_TEXTO,
     isencao:
-      "é `aria-hidden`, é um travessão de marcador de lista, e o texto que ele antecede está em `tinta-fraca` ao lado. Nenhuma informação passa por ele.",
+      "é `aria-hidden`, é um travessão de marcador de lista, e o texto que ele antecede está em `tinta-media` ao lado. Nenhuma informação passa por ele.",
   },
 
   // -------------------------------------------------------------------------
@@ -204,7 +172,7 @@ export const PARES: Par[] = [
   },
   {
     onde: "aba inativa das variações sob o ponteiro (ExampleStage:227)",
-    texto: "tinta-tenue",
+    texto: "tinta-fraca",
     fundo: CARTA_ALTA,
     piso: AA_TEXTO,
   },
@@ -213,16 +181,12 @@ export const PARES: Par[] = [
     texto: "tinta-inversa",
     fundo: ["metodo-cheio"],
     piso: AA_TEXTO,
-    divida:
-      "mede 3,67:1 — a reprovação nomeada no plano. Branco sobre `metodo-cheio` não bate AA em nenhuma composição; o botão primário precisa de um verde bem mais escuro. Pago no B6.5.",
   },
   {
     onde: "botão primário sob o ponteiro — LessonButton:22, LessonPlayer:246",
     texto: "tinta-inversa",
     fundo: ["metodo-cheio-toque"],
     piso: AA_TEXTO,
-    divida:
-      "mede 2,46:1. O hover clareia o fundo (`metodo-cheio-toque`) sem clarear a tinta, então piora um estado de repouso que já reprovava. Pago no B6.5 junto com o botão primário.",
   },
 
   // -------------------------------------------------------------------------
@@ -290,7 +254,7 @@ export const PARES: Par[] = [
   },
   {
     onde: "lista do que falta, com domínio (MasterySeal:46)",
-    texto: "tinta-fraca",
+    texto: "tinta-media",
     fundo: ["metodo-superficie/10", ...PAGINA],
     piso: AA_TEXTO,
   },
@@ -307,23 +271,13 @@ export const PARES: Par[] = [
   // -------------------------------------------------------------------------
   {
     onde: "aula ainda não publicada na home (app/page.tsx:40)",
-    texto: "tinta-apagada",
+    texto: "tinta-fraca",
     fundo: ["carta/40", ...PAGINA],
     piso: AA_TEXTO,
-    divida:
-      "mede 4,06:1. Mesmo `tinta-apagada`, agora sobre o cartão a 40% da home. Pago no B6.5.",
   },
   {
-    onde: "caixa de medida da variante inativa — SoundLab:163, :237, :239, :268, :297",
-    texto: "tinta-apagada",
-    fundo: ["papel/40", ...CARTA],
-    piso: AA_TEXTO,
-    divida:
-      "mede 3,96:1. Mesmo `tinta-apagada`, agora sobre a caixa rebaixada de `/sons`. Pago no B6.5.",
-  },
-  {
-    onde: "nome da variante inativa — SoundLab:164, :200, :201, :252",
-    texto: "tinta-tenue",
+    onde: "variante inativa de /sons — SoundLab:163, :164, :200, :201, :237, :239, :252, :268, :297",
+    texto: "tinta-fraca",
     fundo: ["papel/40", ...CARTA],
     piso: AA_TEXTO,
   },
@@ -334,16 +288,8 @@ export const PARES: Par[] = [
     piso: AA_TEXTO,
   },
   {
-    onde: "nota da variante ativa (SoundLab:268 sobre :248)",
-    texto: "tinta-apagada",
-    fundo: ["metodo-superficie/5", ...CARTA],
-    piso: AA_TEXTO,
-    divida:
-      "mede 3,50:1. É `tinta-apagada` sobre o cartão da variante ativa de `/sons`, já tingido de verde. Pago no B6.5, quando o quinto nível de cinza deixar de existir.",
-  },
-  {
-    onde: "nome da variante ativa (SoundLab:252 sobre :248)",
-    texto: "tinta-tenue",
+    onde: "variante ativa de /sons — SoundLab:252 e :268, sobre o cartão tingido de :248",
+    texto: "tinta-fraca",
     fundo: ["metodo-superficie/5", ...CARTA],
     piso: AA_TEXTO,
   },

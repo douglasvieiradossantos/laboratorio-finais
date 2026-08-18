@@ -160,7 +160,7 @@ export function ExampleStage({
       </div>
 
       <div className="flex flex-1 flex-col gap-4">
-        <p className="rotulo text-tinta-apagada">
+        <p className="rotulo text-tinta-fraca">
           Lance {index} de {total}
         </p>
 
@@ -210,7 +210,7 @@ export function ExampleStage({
         <div className="flex flex-wrap items-center gap-2">
           <span
             id="rotulo-velocidade"
-            className="rotulo text-tinta-apagada"
+            className="rotulo text-tinta-fraca"
           >
             Velocidade
           </span>
@@ -228,7 +228,7 @@ export function ExampleStage({
                       // sobre superfície neutra só funciona por acaso no tema
                       // escuro, e some no claro.
                       "bg-carta-toque text-tinta ring-borda-forte"
-                    : "bg-carta text-tinta-tenue ring-borda hover:bg-carta-alta"
+                    : "bg-carta text-tinta-fraca ring-borda hover:bg-carta-alta"
                 }`}
               >
                 {option.label}

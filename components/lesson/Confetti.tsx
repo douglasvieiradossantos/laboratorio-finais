@@ -37,8 +37,31 @@ const DRAG = 0.985;
 const FADE_FROM = 0.7;
 /** A segunda onda sai 0,2s depois — ênfase sem dobrar a densidade. */
 const WAVE_DELAY_FRAMES = 12;
-/** O verde do painel entra duas vezes, para o confete ficar amarrado a ele. */
-const COLORS = ["#34d399", "#34d399", "#38bdf8", "#fbbf24", "#f472b6", "#f8fafc"];
+/**
+ * As cores saem dos tokens, não de uma lista de hexadecimais.
+ *
+ * Antes eram seis literais herdados da F0, e dois deles já estavam errados: um
+ * `#f8fafc` quase branco, que some sobre papel claro, e um `#f472b6` que não
+ * pertencia a paleta nenhuma. Agora são os quatro papéis semânticos, com o
+ * verde do método entrando duas vezes para o confete ficar amarrado ao painel
+ * que o disparou.
+ *
+ * A leitura é **uma por explosão**, não uma por quadro: `getComputedStyle`
+ * força o cálculo de estilo, e são 200 partículas a 60 quadros por segundo.
+ */
+const TOKENS = [
+  "--color-metodo",
+  "--color-metodo",
+  "--color-metodo-cheio",
+  "--color-dica-superficie",
+  "--color-aviso",
+  "--color-erro",
+];
+
+function paleta(elemento: Element): string[] {
+  const estilo = getComputedStyle(elemento);
+  return TOKENS.map((token) => estilo.getPropertyValue(token).trim() || "currentColor");
+}
 
 export function Confetti({
   seq,
@@ -57,6 +80,8 @@ export function Confetti({
     if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
     const ctx = canvas.getContext("2d");
     if (!ctx) return;
+
+    const COLORS = paleta(canvas);
 
     const rect = canvas.getBoundingClientRect();
     const { width, height } = rect;
