@@ -3,10 +3,10 @@ import test from "node:test";
 import { readdirSync, readFileSync } from "node:fs";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { blocosDe, temaRaiz } from "./css.ts";
+import { blocosDe, lerFolha, temaRaiz } from "./css.ts";
 
 /**
- * Os quatro guardas da camada de tokens. Cada um existe porque a falha que ele
+ * Os cinco guardas da camada de tokens. Cada um existe porque a falha que ele
  * pega é **silenciosa** — nada quebra, nada avisa, e a tela fica errada.
  *
  * Não são testes de contraste: nenhum deles mede cor. São testes de que a
@@ -137,4 +137,29 @@ test("toda classe de token aponta para um token que existe", () => {
     });
   }
   assert.deepEqual(suspeitas, [], "classe de cor sem token correspondente em app/globals.css");
+});
+
+test("cada direção candidata redefine a paleta inteira", () => {
+  // O guarda contra o pior verde que existe: o teste passar medindo o tema
+  // errado. Uma direção que esqueça um token o herda da raiz — no B6.3 isso
+  // significa um valor do tema escuro sobrando no meio de uma paleta clara, e
+  // a régua aprovaria a mistura sem reclamar de nada.
+  const blocos = lerFolha(FOLHA);
+  const daRaiz = Object.keys(temaRaiz(blocos)).filter(
+    (nome) => nome.startsWith("--color-") && nome !== "--color-*",
+  );
+
+  const porDirecao = new Map<string, Set<string>>();
+  for (const bloco of blocos) {
+    const nome = /^\[data-direcao=["']?([\w-]+)["']?\]$/.exec(bloco.seletor)?.[1];
+    if (!nome) continue;
+    const conjunto = porDirecao.get(nome) ?? new Set<string>();
+    for (const token of Object.keys(bloco.vars)) conjunto.add(token);
+    porDirecao.set(nome, conjunto);
+  }
+
+  for (const [direcao, declarados] of porDirecao) {
+    const faltando = daRaiz.filter((token) => !declarados.has(token));
+    assert.deepEqual(faltando, [], `a direção "${direcao}" não redefine estes tokens`);
+  }
 });

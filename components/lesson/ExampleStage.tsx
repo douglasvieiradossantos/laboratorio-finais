@@ -223,7 +223,11 @@ export function ExampleStage({
                 onClick={() => setSpeed(option.key)}
                 className={`min-h-11 rounded-md px-3 py-2 text-sm font-medium ring-1 transition foco ${
                   speed === option.key
-                    ? "bg-carta-toque text-tinta-inversa ring-borda-forte"
+                    ? // `tinta` e não `tinta-inversa`: a aba ativa aqui é uma
+                      // superfície neutra, não uma cor cheia. Tinta invertida
+                      // sobre superfície neutra só funciona por acaso no tema
+                      // escuro, e some no claro.
+                      "bg-carta-toque text-tinta ring-borda-forte"
                     : "bg-carta text-tinta-tenue ring-borda hover:bg-carta-alta"
                 }`}
               >

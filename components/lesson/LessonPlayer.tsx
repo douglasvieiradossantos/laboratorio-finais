@@ -102,7 +102,13 @@ export function LessonPlayer({ bundle }: { bundle: LessonBundle }) {
                   : "bg-carta text-tinta-fraca ring-borda hover:bg-carta-alta"
               }`}
             >
-              <span className="tabular-nums text-tinta-tenue">{index + 1}.</span>{" "}
+              {/* O numeral recua **só** na aba inativa. Na ativa ele herda a
+                  tinta do botão: a aba cheia já é a barulhenta da fila, e um
+                  cinza de fundo claro sobre o verde cheio media 1,39:1 — a pior
+                  reprovação que a régua achou no B6.1. */}
+              <span className={`tabular-nums ${active ? "" : "text-tinta-tenue"}`}>
+                {index + 1}.
+              </span>{" "}
               {STAGE_LABEL[key]}
             </button>
           );

@@ -18,12 +18,21 @@
  * omitido é par esquecido; par isento é decisão registrada, com o motivo do
  * lado. Hoje são três, todas de coisa que não carrega informação.
  *
- * **Dívida também é escrita.** Oito combinações do tema atual reprovam AA de
- * verdade — de 4,23:1 até 1,39:1. Elas não saem da lista nem viram isenção:
+ * **Dívida também é escrita.** Sete combinações do tema em vigor ainda reprovam
+ * AA de verdade, de 4,23:1 a 2,46:1. Elas não saem da lista nem viram isenção:
  * ganham o campo `divida` com o número medido e o bloco que as paga, e o teste
  * exige que continuem reprovando. Consertar a cor sem apagar a linha daqui fica
  * vermelho, e o campo esvazia no B6.5 — o delta entre oito e zero *é* a entrega
  * deste bloco.
+ *
+ * Das oito originais, uma já foi paga no B6.3, e não por valor de cor: era
+ * tinta encostada num fundo que mudou de claridade embaixo dela — o defeito
+ * estava no componente, não na paleta, e nenhuma direção clara passaria
+ * enquanto ele existisse.
+ *
+ * **Dívida vale só para o tema em vigor.** Cada `[data-direcao]` é medido pela
+ * mesma lista e sem direito a nenhuma: só chega aos olhos de quem escolhe o
+ * que já é legal.
  */
 
 /** Piso da WCAG 2.2 para corpo de texto (1.4.3, AA). */
@@ -188,7 +197,7 @@ export const PARES: Par[] = [
     piso: AA_TEXTO,
   },
   {
-    onde: "botão neutro sob o ponteiro — LessonButton:23, PositionPlayer:246, SoundLab:119",
+    onde: "botão neutro sob o ponteiro e aba ativa das variações — LessonButton:23, PositionPlayer:246, SoundLab:119, ExampleStage:226",
     texto: "tinta",
     fundo: CARTA_TOQUE,
     piso: AA_TEXTO,
@@ -197,12 +206,6 @@ export const PARES: Par[] = [
     onde: "aba inativa das variações sob o ponteiro (ExampleStage:227)",
     texto: "tinta-tenue",
     fundo: CARTA_ALTA,
-    piso: AA_TEXTO,
-  },
-  {
-    onde: "aba ativa das variações (ExampleStage:226)",
-    texto: "tinta-inversa",
-    fundo: CARTA_TOQUE,
     piso: AA_TEXTO,
   },
   {
@@ -220,14 +223,6 @@ export const PARES: Par[] = [
     piso: AA_TEXTO,
     divida:
       "mede 2,46:1. O hover clareia o fundo (`metodo-cheio-toque`) sem clarear a tinta, então piora um estado de repouso que já reprovava. Pago no B6.5 junto com o botão primário.",
-  },
-  {
-    onde: "numeral da etapa dentro da aba ativa (LessonPlayer:105 sobre LessonPlayer:101)",
-    texto: "tinta-tenue",
-    fundo: ["metodo-cheio"],
-    piso: AA_TEXTO,
-    divida:
-      "mede 1,39:1 contra os 4,5 do piso — a pior reprovação do tema atual, e a que o plano do B6 não tinha visto. O numeral é `tinta-tenue`, um cinza escolhido para fundo escuro, e a aba ativa é `metodo-cheio`, claro: a tinta ficou onde estava quando o fundo mudou. Pago no B6.5, quando a aba ativa passa a ter tinta própria em vez de herdar a do estado inativo.",
   },
 
   // -------------------------------------------------------------------------

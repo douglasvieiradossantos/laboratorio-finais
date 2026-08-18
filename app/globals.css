@@ -1,5 +1,10 @@
 @import "tailwindcss";
 
+/* TEMPORÁRIO — as três direções candidatas do B6.3, cada uma redefinindo os 32
+   tokens para uma proposta clara. Sai no B6.5 junto com a pasta `app/direcoes/`.
+   Ver o cabeçalho do arquivo importado. */
+@import "./direcoes/direcoes.css";
+
 /* --------------------------------------------------------------------------
    Fontes
 

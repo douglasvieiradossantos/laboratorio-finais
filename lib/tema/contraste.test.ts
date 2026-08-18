@@ -103,6 +103,11 @@ test("dívida registrada é dívida real: par com `divida` tem de reprovar mesmo
 });
 
 test("todo par sem isenção e sem dívida bate o piso da WCAG", () => {
+  // As reprovações de **todas** as direções são recolhidas antes de qualquer
+  // asserção. Falhar na primeira esconderia as outras, e ajustar direção
+  // candidata uma reprovação por vez é o caminho lento de propósito.
+  const todas: string[] = [];
+
   for (const [nome, vars] of TEMAS) {
     const linhas = medir(vars).sort((a, b) => a.razao - b.razao);
     const largura = Math.max(...linhas.map((l) => l.par.onde.length));
@@ -134,10 +139,10 @@ test("todo par sem isenção e sem dívida bate o piso da WCAG", () => {
         `${reprovados.length} reprovações novas\n`,
     );
 
-    assert.deepEqual(
-      reprovados.map((l) => `${l.razao.toFixed(2)}:1 — ${l.par.onde}`),
-      [],
-      `${nomeLegivel(nome)}: par abaixo do piso sem isenção nem dívida registrada`,
+    todas.push(
+      ...reprovados.map((l) => `${nomeLegivel(nome)} · ${l.razao.toFixed(2)}:1 — ${l.par.onde}`),
     );
   }
+
+  assert.deepEqual(todas, [], "par abaixo do piso sem isenção nem dívida registrada");
 });

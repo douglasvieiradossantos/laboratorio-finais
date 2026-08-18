@@ -16,6 +16,7 @@
  */
 
 import { readFileSync } from "node:fs";
+import { dirname, resolve } from "node:path";
 import { parseCor, type Cor, type Vars } from "./cor.ts";
 
 export type Bloco = {
@@ -120,14 +121,37 @@ export function temasPorSeletor(blocos: Bloco[]): Record<string, Vars> {
   const temas: Record<string, Vars> = { "": raiz };
   for (const bloco of blocos) {
     const nome = /^\[data-direcao=["']?([\w-]+)["']?\]$/.exec(bloco.seletor)?.[1];
-    if (nome) temas[nome] = { ...raiz, ...bloco.vars };
+    // Acumula, e não substitui: uma direção declara a paleta num bloco e os
+    // papéis tipográficos noutro, com o mesmo seletor. Substituir faria o
+    // segundo bloco — o que não tem cor nenhuma — apagar a paleta inteira, e a
+    // direção passaria a ser medida com os valores da raiz. O teste continuaria
+    // verde, medindo o tema errado, que é a pior forma de verde que existe.
+    if (nome) temas[nome] = { ...(temas[nome] ?? raiz), ...bloco.vars };
   }
   return temas;
 }
 
-/** Lê e quebra uma folha do disco. */
+/**
+ * Lê e quebra uma folha do disco, seguindo os `@import` de caminho relativo.
+ *
+ * Seguir o import não é luxo: as direções candidatas do B6.3 moram em
+ * `app/direcoes/`, que é um diretório temporário — apagar a pasta e a linha do
+ * import tem de bastar para elas sumirem. Se o teste só lesse `globals.css`,
+ * ou os candidatos entrariam na folha definitiva, ou não seriam medidos.
+ *
+ * `@import "tailwindcss"` e qualquer outro import de pacote são ignorados: o
+ * que interessa é token do projeto, e o Tailwind não declara nenhum.
+ */
 export function lerFolha(caminho: string): Bloco[] {
-  return blocosDe(readFileSync(caminho, "utf8"));
+  const css = readFileSync(caminho, "utf8");
+  const blocos = blocosDe(css);
+  const base = dirname(caminho);
+
+  for (const [, alvo] of semComentarios(css).matchAll(/@import\s+["']([^"']+)["']/g)) {
+    if (!alvo.startsWith(".")) continue;
+    blocos.push(...lerFolha(resolve(base, alvo)));
+  }
+  return blocos;
 }
 
 /**

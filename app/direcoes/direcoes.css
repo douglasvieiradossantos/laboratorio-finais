@@ -1,0 +1,232 @@
+/* ==========================================================================
+   Três direções candidatas — TEMPORÁRIO, sai no B6.5
+
+   Cada bloco redefine os 32 tokens da paleta para uma proposta de identidade
+   clara, no registro "sala de aula" do §8 do plano da F1. Nada aqui é token
+   novo: são os mesmos nomes com outros valores, que é exatamente a prova de
+   que a taxonomia do B6.2 aguenta trocar de tema sem reescrever componente.
+
+   **Nenhuma direção passa por opinião antes de passar pela régua.**
+   `lib/tema/contraste.test.ts` mede as 43 combinações em cada uma, e direção
+   candidata **não tem direito a dívida**: qualquer par abaixo do piso deixa o
+   CI vermelho. O que chega aos olhos de quem escolhe já é legal, e a escolha
+   fica sendo de gosto, não de acessibilidade.
+
+   Como apagar no B6.5: promova os valores da vencedora ao `@theme` de
+   `app/globals.css`, apague a pasta `app/direcoes/` inteira e a linha de
+   `@import` que trouxe este arquivo. Nenhum componente é tocado.
+
+   As três invertem o site, e nenhum dos dois verdes que o projeto tinha
+   sobrevive à inversão como texto — emerald-400 dá 1,93:1 sobre branco e
+   emerald-600 dá 3,67:1. O verde de cada direção é novo e escuro; o do botão
+   cheio, mais escuro ainda, porque ali quem precisa ser lido é o branco.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   A — Papel
+
+   Creme quente, serifa em tudo que é leitura. O registro é o de um manual de
+   finais impresso: o aluno está lendo um livro que responde. A cor é econômica
+   ao extremo — verde só onde há método, e o resto é tinta sobre papel.
+   -------------------------------------------------------------------------- */
+
+[data-direcao="papel"] {
+  --color-papel: oklch(97.2% 0.012 85);
+  --color-carta: oklch(99.3% 0.005 85);
+  --color-carta-alta: oklch(93.4% 0.015 85);
+  --color-carta-toque: oklch(88.6% 0.019 85);
+  --color-veu: color-mix(in oklab, oklch(24% 0.018 65) 62%, transparent);
+
+  --color-tinta: oklch(24% 0.018 65);
+  --color-tinta-media: oklch(31% 0.017 65);
+  --color-tinta-fraca: oklch(38% 0.016 65);
+  --color-tinta-tenue: oklch(44% 0.015 65);
+  --color-tinta-apagada: oklch(49% 0.014 65);
+  --color-tinta-muda: oklch(68% 0.012 65);
+  --color-tinta-inversa: oklch(98.8% 0.008 85);
+
+  --color-borda: color-mix(in oklab, oklch(24% 0.018 65) 15%, transparent);
+  --color-borda-fraca: color-mix(in oklab, oklch(24% 0.018 65) 8%, transparent);
+  --color-borda-forte: color-mix(in oklab, oklch(24% 0.018 65) 26%, transparent);
+  --color-foco: oklch(47% 0.125 158);
+
+  --color-metodo: oklch(41.5% 0.098 158);
+  --color-metodo-superficie: oklch(62% 0.11 158);
+  --color-metodo-tinta: oklch(33% 0.075 158);
+  --color-metodo-tinta-alta: oklch(27% 0.062 158);
+  --color-metodo-selo: oklch(30% 0.07 158);
+  --color-metodo-cheio: oklch(43% 0.098 158);
+  --color-metodo-cheio-toque: oklch(37% 0.088 158);
+
+  --color-aviso: oklch(64% 0.135 68);
+  --color-aviso-superficie: oklch(74% 0.145 68);
+  --color-aviso-tinta: oklch(36% 0.085 58);
+
+  --color-erro: oklch(52% 0.175 22);
+  --color-erro-superficie: oklch(59% 0.195 22);
+  --color-erro-tinta: oklch(36% 0.13 22);
+  --color-erro-texto: oklch(45% 0.165 22);
+
+  --color-dica-superficie: oklch(58% 0.13 240);
+  --color-dica-tinta: oklch(36% 0.1 240);
+}
+
+/* --------------------------------------------------------------------------
+   B — Manual
+
+   Branco neutro, tinta quase preta azulada, contraste mais alto. O corpo da
+   aula é serifa de tela; título e interface são sans apertada. O registro é o
+   de um manual técnico moderno: sóbrio, denso, sem calor nenhum.
+   -------------------------------------------------------------------------- */
+
+[data-direcao="manual"] {
+  --color-papel: oklch(98.6% 0.003 250);
+  --color-carta: oklch(100% 0 0);
+  --color-carta-alta: oklch(94.2% 0.005 250);
+  --color-carta-toque: oklch(89.4% 0.008 250);
+  --color-veu: color-mix(in oklab, oklch(21% 0.022 258) 65%, transparent);
+
+  --color-tinta: oklch(21% 0.022 258);
+  --color-tinta-media: oklch(28% 0.021 258);
+  --color-tinta-fraca: oklch(35% 0.02 258);
+  --color-tinta-tenue: oklch(42% 0.019 258);
+  --color-tinta-apagada: oklch(48% 0.018 258);
+  --color-tinta-muda: oklch(67% 0.014 258);
+  --color-tinta-inversa: oklch(100% 0 0);
+
+  --color-borda: color-mix(in oklab, oklch(21% 0.022 258) 14%, transparent);
+  --color-borda-fraca: color-mix(in oklab, oklch(21% 0.022 258) 7%, transparent);
+  --color-borda-forte: color-mix(in oklab, oklch(21% 0.022 258) 24%, transparent);
+  --color-foco: oklch(45% 0.13 168);
+
+  --color-metodo: oklch(42% 0.105 168);
+  --color-metodo-superficie: oklch(60% 0.115 168);
+  --color-metodo-tinta: oklch(31% 0.08 168);
+  --color-metodo-tinta-alta: oklch(25% 0.065 168);
+  --color-metodo-selo: oklch(28% 0.075 168);
+  --color-metodo-cheio: oklch(41% 0.1 168);
+  --color-metodo-cheio-toque: oklch(35% 0.09 168);
+
+  --color-aviso: oklch(62% 0.14 62);
+  --color-aviso-superficie: oklch(72% 0.15 62);
+  --color-aviso-tinta: oklch(34% 0.09 52);
+
+  --color-erro: oklch(50% 0.19 18);
+  --color-erro-superficie: oklch(57% 0.21 18);
+  --color-erro-tinta: oklch(34% 0.14 18);
+  --color-erro-texto: oklch(43% 0.18 18);
+
+  --color-dica-superficie: oklch(55% 0.14 248);
+  --color-dica-tinta: oklch(34% 0.11 248);
+}
+
+/* --------------------------------------------------------------------------
+   C — Ardósia
+
+   Papel cinza-esverdeado, cartão branco por cima. Título em serifa editorial
+   grande; o corpo é sans. O registro é o de uma sala de aula com lousa: a
+   página é a parede, o cartão é a folha, o verde é o giz.
+   -------------------------------------------------------------------------- */
+
+[data-direcao="ardosia"] {
+  --color-papel: oklch(95% 0.008 150);
+  --color-carta: oklch(99.5% 0.003 150);
+  --color-carta-alta: oklch(91.2% 0.011 150);
+  --color-carta-toque: oklch(86.5% 0.014 150);
+  --color-veu: color-mix(in oklab, oklch(26% 0.015 160) 62%, transparent);
+
+  --color-tinta: oklch(26% 0.015 160);
+  --color-tinta-media: oklch(33% 0.014 160);
+  --color-tinta-fraca: oklch(39% 0.013 160);
+  --color-tinta-tenue: oklch(44% 0.012 160);
+  --color-tinta-apagada: oklch(48% 0.012 160);
+  --color-tinta-muda: oklch(66% 0.01 160);
+  --color-tinta-inversa: oklch(99% 0.004 150);
+
+  --color-borda: color-mix(in oklab, oklch(26% 0.015 160) 16%, transparent);
+  --color-borda-fraca: color-mix(in oklab, oklch(26% 0.015 160) 9%, transparent);
+  --color-borda-forte: color-mix(in oklab, oklch(26% 0.015 160) 28%, transparent);
+  --color-foco: oklch(46% 0.115 152);
+
+  --color-metodo: oklch(39.5% 0.093 152);
+  --color-metodo-superficie: oklch(58% 0.105 152);
+  --color-metodo-tinta: oklch(31% 0.07 152);
+  --color-metodo-tinta-alta: oklch(26% 0.058 152);
+  --color-metodo-selo: oklch(29% 0.066 152);
+  --color-metodo-cheio: oklch(40% 0.092 152);
+  --color-metodo-cheio-toque: oklch(34% 0.082 152);
+
+  --color-aviso: oklch(60% 0.125 72);
+  --color-aviso-superficie: oklch(70% 0.135 72);
+  --color-aviso-tinta: oklch(35% 0.08 62);
+
+  --color-erro: oklch(50% 0.165 25);
+  --color-erro-superficie: oklch(57% 0.185 25);
+  --color-erro-tinta: oklch(35% 0.125 25);
+  --color-erro-texto: oklch(43% 0.155 25);
+
+  --color-dica-superficie: oklch(54% 0.12 235);
+  --color-dica-tinta: oklch(34% 0.095 235);
+}
+
+/* --------------------------------------------------------------------------
+   Os papéis tipográficos
+
+   Cada direção distribui título, corpo e interface entre a serifa dela e a
+   Inter. As três atribuições são diferentes de propósito: é o que se compara
+   melhor alternando na mesma posição da tela, e é a diferença que mais muda o
+   registro — mais que a cor, que nas três é econômica.
+
+   Isto é seletor de elemento sob `[data-direcao]`, e **nenhum componente é
+   tocado**. `.rotulo` é utilitária nossa, então mirar nela é estável.
+
+   **O numeral é sans nas três.** Contador de lance e medida de laboratório são
+   interface, não prosa, e a Inter garante figura tabular — sem isso o número
+   dança a cada lance. As figuras tabulares das três serifas aparecem no
+   espécime da folha de contato, para a decisão ser vista e não suposta.
+   -------------------------------------------------------------------------- */
+
+/* A — corpo e título em serifa; sans só onde é interface. */
+[data-direcao="papel"] {
+  font-family: var(--fonte-papel), Georgia, serif;
+}
+
+[data-direcao="papel"] .rotulo,
+[data-direcao="papel"] button,
+[data-direcao="papel"] .tabular-nums,
+[data-direcao="papel"] code {
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+/* B — o inverso no título: sans apertada em cima, serifa só na leitura longa. */
+[data-direcao="manual"] {
+  font-family: var(--fonte-manual), Georgia, serif;
+}
+
+[data-direcao="manual"] h1,
+[data-direcao="manual"] h2,
+[data-direcao="manual"] h3,
+[data-direcao="manual"] .rotulo,
+[data-direcao="manual"] button,
+[data-direcao="manual"] .tabular-nums,
+[data-direcao="manual"] code {
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+[data-direcao="manual"] h1,
+[data-direcao="manual"] h2 {
+  letter-spacing: -0.022em;
+}
+
+/* C — serifa editorial só no título, e ele pede peso menor por ser maior. */
+[data-direcao="ardosia"] {
+  font-family: var(--font-sans), system-ui, sans-serif;
+}
+
+[data-direcao="ardosia"] h1,
+[data-direcao="ardosia"] h2,
+[data-direcao="ardosia"] h3 {
+  font-family: var(--fonte-ardosia), Georgia, serif;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+}
