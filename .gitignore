@@ -45,3 +45,10 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Os PDFs dos livros. O repositório é público e livro comprado não pode ser
+# redistribuído — eles ficam só na máquina do autor. O que o repositório
+# versiona é a *proveniência* (livro, edição, página, diagrama), nunca a obra.
+# O README é a exceção: ele explica a regra para quem clonar o projeto.
+biblioteca/*
+!biblioteca/README.md
