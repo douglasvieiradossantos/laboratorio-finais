@@ -138,8 +138,8 @@ export function EngineLab() {
 
   return (
     <div className="flex flex-col gap-6">
-      <section className="rounded-lg border border-white/10 bg-slate-900 p-4">
-        <h2 className="text-sm font-semibold text-slate-200">A build</h2>
+      <section className="rounded-lg border border-borda bg-carta p-4">
+        <h2 className="text-sm font-semibold text-tinta-media">A build</h2>
         <dl className="mt-3 grid grid-cols-1 gap-x-6 gap-y-1 text-sm sm:grid-cols-2">
           <Campo rotulo="Identificação" valor={ENGINE_BUILD.id} />
           <Campo rotulo="Peso total" valor={formatBytes(engineTotalBytes())} />
@@ -192,9 +192,9 @@ export function EngineLab() {
       </section>
 
       {linhas.length > 0 && (
-        <section className="overflow-x-auto rounded-lg border border-white/10 bg-slate-900">
+        <section className="overflow-x-auto rounded-lg border border-borda bg-carta">
           <table className="w-full min-w-136 text-left text-sm">
-            <thead className="border-b border-white/10 text-xs uppercase tracking-wide text-slate-500">
+            <thead className="border-b border-borda text-xs uppercase tracking-wide text-tinta-apagada">
               <tr>
                 <th className="px-4 py-2 font-medium">Posição</th>
                 <th className="px-4 py-2 font-medium">Skill</th>
@@ -203,9 +203,9 @@ export function EngineLab() {
                 <th className="px-4 py-2 font-medium">Medido</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-white/5">
+            <tbody className="divide-y divide-borda-fraca">
               {linhas.map((linha, i) => (
-                <tr key={i} className={linha.erro ? "text-rose-300" : "text-slate-300"}>
+                <tr key={i} className={linha.erro ? "text-erro-texto" : "text-tinta-fraca"}>
                   <td className="px-4 py-2">{linha.caso}</td>
                   <td className="px-4 py-2 tabular-nums">{linha.skill}</td>
                   <td className="px-4 py-2 tabular-nums">{linha.moveTimeMs} ms</td>
@@ -223,7 +223,7 @@ export function EngineLab() {
       <p
         aria-live="polite"
         role="status"
-        className="text-sm leading-relaxed text-slate-400"
+        className="text-sm leading-relaxed text-tinta-tenue"
         data-engine-status={status}
         data-engine-load-ms={loadMs ?? ""}
         data-engine-rows={linhas.length}
@@ -242,9 +242,9 @@ export function EngineLab() {
 
 function Campo({ rotulo, valor }: { rotulo: string; valor: string }) {
   return (
-    <div className="flex justify-between gap-4 border-b border-white/5 py-1 sm:border-0">
-      <dt className="text-slate-500">{rotulo}</dt>
-      <dd className="font-mono text-slate-300">{valor}</dd>
+    <div className="flex justify-between gap-4 border-b border-borda-fraca py-1 sm:border-0">
+      <dt className="text-tinta-apagada">{rotulo}</dt>
+      <dd className="font-mono text-tinta-fraca">{valor}</dd>
     </div>
   );
 }
@@ -265,7 +265,7 @@ function Numero({
   onChange: (valor: number) => void;
 }) {
   return (
-    <label className="flex flex-col gap-1 text-xs text-slate-400">
+    <label className="flex flex-col gap-1 text-xs text-tinta-tenue">
       {rotulo}
       <input
         type="number"
@@ -274,7 +274,7 @@ function Numero({
         max={max}
         step={passo}
         onChange={(e) => onChange(Number(e.target.value))}
-        className="min-h-11 w-28 rounded-md bg-slate-950 px-3 py-2 text-sm tabular-nums text-slate-200 ring-1 ring-white/10 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+        className="min-h-11 w-28 rounded-md bg-papel px-3 py-2 text-sm tabular-nums text-tinta-media ring-1 ring-borda foco"
       />
     </label>
   );

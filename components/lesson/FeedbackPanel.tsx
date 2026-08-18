@@ -9,11 +9,11 @@ import type { MessageTone, PanelMessage } from "@/lib/lesson/store";
  * seria um erro silencioso de ordem, que às vezes acerta e às vezes não.
  */
 const TONE: Record<MessageTone | "conclusao", string> = {
-  good: "border-emerald-500/40 bg-emerald-500/10 text-emerald-100",
-  bad: "border-rose-500/40 bg-rose-500/10 text-rose-100",
-  warn: "border-amber-500/40 bg-amber-500/10 text-amber-100",
-  neutral: "border-white/10 bg-slate-900 text-slate-300",
-  conclusao: "border-emerald-400/70 bg-emerald-500/20 text-emerald-50 ring-1 ring-emerald-400/30",
+  good: "border-metodo-superficie/40 bg-metodo-superficie/10 text-metodo-tinta",
+  bad: "border-erro-superficie/40 bg-erro-superficie/10 text-erro-tinta",
+  warn: "border-aviso-superficie/40 bg-aviso-superficie/10 text-aviso-tinta",
+  neutral: "border-borda bg-carta text-tinta-fraca",
+  conclusao: "border-metodo/70 bg-metodo-superficie/20 text-metodo-tinta-alta ring-1 ring-metodo/30",
 };
 
 /**
@@ -51,14 +51,14 @@ export function FeedbackPanel({
         // anunciada: o leitor de tela começa pela conclusão.
         <span key={message.seq}>
           {done && (
-            <strong className="mr-2 inline-block rounded bg-emerald-400/20 px-2 py-0.5 text-xs font-bold uppercase tracking-[0.14em] text-emerald-200">
+            <strong className="mr-2 inline-block rounded bg-metodo/20 px-2 py-0.5 text-xs font-bold uppercase tracking-[0.14em] text-metodo-selo">
               Etapa concluída.
             </strong>
           )}
           {message.text}
         </span>
       ) : (
-        <span className="text-slate-400">{placeholder ?? ""}</span>
+        <span className="text-tinta-tenue">{placeholder ?? ""}</span>
       )}
     </div>
   );

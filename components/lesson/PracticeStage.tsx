@@ -362,16 +362,16 @@ export function PracticeStage({
 
       <div className="flex flex-1 flex-col gap-4">
         {intro && verdict.kind === "playing" && (
-          <p className="text-sm leading-relaxed text-slate-300">{intro}</p>
+          <p className="text-sm leading-relaxed text-tinta-fraca">{intro}</p>
         )}
 
-        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+        <p className="flex flex-wrap items-center gap-x-3 gap-y-1 rotulo text-tinta-apagada">
           {/* O empate por falta de progresso deixa de cair do céu no lance 100. */}
           <span>
             Sem progresso: {progress.used} de {progress.limit}
           </span>
           {attempt > 1 && <span>· tentativa {attempt}</span>}
-          {thinking && <span className="text-emerald-400/80">· pensando…</span>}
+          {thinking && <span className="text-metodo/80">· pensando…</span>}
         </p>
 
         <FeedbackPanel
@@ -380,15 +380,15 @@ export function PracticeStage({
         />
 
         {engineStatus === "loading" && (
-          <p className="rounded-lg border border-sky-500/30 bg-sky-500/5 px-4 py-3 text-sm leading-relaxed text-sky-100">
+          <p className="rounded-lg border border-dica-superficie/30 bg-dica-superficie/5 px-4 py-3 text-sm leading-relaxed text-dica-tinta">
             Carregando o computador — {formatBytes(engineTotalBytes())}, só na primeira vez.
           </p>
         )}
 
         {(engineStatus === "failed" || searchError) && (
-          <div className="flex flex-col gap-3 rounded-lg border border-amber-500/30 bg-amber-500/5 px-4 py-3">
+          <div className="flex flex-col gap-3 rounded-lg border border-aviso-superficie/30 bg-aviso-superficie/5 px-4 py-3">
             {/* Âmbar, não rubro: não foi o aluno que errou. */}
-            <p className="text-sm leading-relaxed text-amber-100">
+            <p className="text-sm leading-relaxed text-aviso-tinta">
               {searchError ?? "Não consegui carregar o computador."} Confira a conexão e tente de
               novo. As etapas com ajuda e sem ajuda continuam disponíveis.
             </p>

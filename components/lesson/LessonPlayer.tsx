@@ -77,7 +77,7 @@ export function LessonPlayer({ bundle }: { bundle: LessonBundle }) {
       <header className="flex flex-col gap-2">
         <Link
           href="/"
-          className="text-xs font-medium text-slate-500 transition hover:text-slate-300"
+          className="text-xs font-medium text-tinta-apagada transition hover:text-tinta-fraca"
         >
           ← todas as aulas
         </Link>
@@ -96,13 +96,13 @@ export function LessonPlayer({ bundle }: { bundle: LessonBundle }) {
               type="button"
               onClick={() => goToStage(key)}
               aria-current={active ? "step" : undefined}
-              className={`min-h-11 rounded-md px-3 py-2 text-sm font-medium ring-1 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 ${
+              className={`min-h-11 rounded-md px-3 py-2 text-sm font-medium ring-1 transition foco ${
                 active
-                  ? "bg-emerald-600 text-white ring-emerald-400/30"
-                  : "bg-slate-900 text-slate-300 ring-white/10 hover:bg-slate-800"
+                  ? "bg-metodo-cheio text-tinta-inversa ring-metodo/30"
+                  : "bg-carta text-tinta-fraca ring-borda hover:bg-carta-alta"
               }`}
             >
-              <span className="tabular-nums text-slate-400">{index + 1}.</span>{" "}
+              <span className="tabular-nums text-tinta-tenue">{index + 1}.</span>{" "}
               {STAGE_LABEL[key]}
             </button>
           );
@@ -220,7 +220,7 @@ function SoundToggle() {
       type="button"
       onClick={() => setSoundOn(!on)}
       aria-pressed={on}
-      className="min-h-11 shrink-0 rounded-md bg-slate-900 px-3 py-2 text-lg leading-none ring-1 ring-white/10 transition hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+      className="min-h-11 shrink-0 rounded-md bg-carta px-3 py-2 text-lg leading-none ring-1 ring-borda transition hover:bg-carta-alta foco"
     >
       <span aria-hidden>{on ? "🔊" : "🔇"}</span>
       <span className="sr-only">{on ? "Desligar o som" : "Ligar o som"}</span>
@@ -243,7 +243,7 @@ function StageFooter({
       <button
         type="button"
         onClick={() => onGo(next)}
-        className="min-h-11 rounded-md bg-emerald-600 px-4 py-2 text-sm font-medium text-white ring-1 ring-emerald-400/30 transition hover:bg-emerald-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+        className="min-h-11 rounded-md bg-metodo-cheio px-4 py-2 text-sm font-medium text-tinta-inversa ring-1 ring-metodo/30 transition hover:bg-metodo-cheio-toque foco"
       >
         {label} →
       </button>

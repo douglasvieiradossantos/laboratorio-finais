@@ -320,11 +320,11 @@ export function TreeStage({
 
       <div className="flex flex-1 flex-col gap-4">
         {intro && status === "playing" && (
-          <p className="text-sm leading-relaxed text-slate-300">{intro}</p>
+          <p className="text-sm leading-relaxed text-tinta-fraca">{intro}</p>
         )}
 
         {moveLimit !== undefined && (
-          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+          <p className="rotulo text-tinta-apagada">
             Lance {state.studentMoves} de {moveLimit}
             {state.attempt > 1 && ` · tentativa ${state.attempt}`}
           </p>
@@ -347,7 +347,7 @@ export function TreeStage({
               </LessonButton>
             </div>
             {state.hintOpen && (
-              <p className="rounded-lg border border-sky-500/30 bg-sky-500/5 px-4 py-3 text-sm leading-relaxed text-sky-100">
+              <p className="rounded-lg border border-dica-superficie/30 bg-dica-superficie/5 px-4 py-3 text-sm leading-relaxed text-dica-tinta">
                 {node.hint}
               </p>
             )}

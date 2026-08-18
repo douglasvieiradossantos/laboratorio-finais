@@ -19,15 +19,15 @@ export function LessonButton({
 }) {
   const skin =
     variant === "primary"
-      ? "bg-emerald-600 text-white ring-emerald-400/30 hover:bg-emerald-500"
-      : "bg-slate-800 text-slate-100 ring-white/10 hover:bg-slate-700 disabled:hover:bg-slate-800";
+      ? "bg-metodo-cheio text-tinta-inversa ring-metodo/30 hover:bg-metodo-cheio-toque"
+      : "bg-carta-alta text-tinta ring-borda hover:bg-carta-toque disabled:hover:bg-carta-alta";
 
   return (
     <button
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`min-h-11 rounded-md px-4 py-2 text-sm font-medium ring-1 transition disabled:cursor-not-allowed disabled:opacity-40 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 ${skin}`}
+      className={`min-h-11 rounded-md px-4 py-2 text-sm font-medium ring-1 transition disabled:cursor-not-allowed disabled:opacity-40 foco ${skin}`}
     >
       {children}
     </button>

@@ -25,12 +25,12 @@ export function ObjectiveStage({
       </div>
 
       <div className="flex flex-col gap-4">
-        <p className="text-sm leading-relaxed text-slate-200">{stage.text}</p>
-        <div className="rounded-lg border border-emerald-500/30 bg-emerald-500/5 px-4 py-3">
-          <h3 className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-400">
+        <p className="text-sm leading-relaxed text-tinta-media">{stage.text}</p>
+        <div className="rounded-lg border border-metodo-superficie/30 bg-metodo-superficie/5 px-4 py-3">
+          <h3 className="rotulo text-metodo">
             O que conta como dominado
           </h3>
-          <p className="mt-2 text-sm leading-relaxed text-slate-200">{stage.mastery}</p>
+          <p className="mt-2 text-sm leading-relaxed text-tinta-media">{stage.mastery}</p>
         </div>
       </div>
     </div>

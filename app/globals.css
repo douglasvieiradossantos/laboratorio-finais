@@ -1,7 +1,147 @@
 @import "tailwindcss";
 
+/* --------------------------------------------------------------------------
+   Fontes
+
+   Este bloco é `inline` por obrigação: `--font-sans: var(--font-sans)` seria
+   auto-referente se virasse propriedade de `:root`, e o Next escreve o nome da
+   família numa variável de mesmo nome. `inline` faz o Tailwind assar o valor
+   literal na utilitária, e a auto-referência some.
+
+   **Cor nenhuma entra aqui.** Um `--color-*` dentro de `@theme inline` não
+   segue redefinição por subárvore nem por tema: o valor vai assado na classe,
+   e `[data-direcao]` ou `prefers-color-scheme` deixariam de ter efeito. Isso
+   mataria a rota de comparação do B6.3 e o tema escuro depois. Há um teste que
+   cobra isto em `lib/tema/guardas.test.ts`.
+   -------------------------------------------------------------------------- */
+
 @theme inline {
   --font-sans: var(--font-sans);
+}
+
+/* --------------------------------------------------------------------------
+   A paleta
+
+   Trinta e dois tokens em português, e nenhuma classe de cor crua no site: o
+   significado (verde é método, âmbar é aviso, rosa é erro, azul é dica) deixa
+   de existir por disciplina e passa a existir por estrutura.
+
+   **`--color-*: initial` apaga a paleta de fábrica do Tailwind.** Depois desta
+   linha `bg-carta` não gera CSS nenhum. A falha é silenciosa — a classe
+   some, o elemento fica sem fundo, nada quebra e nada avisa —, então ela vem em
+   par com um teste que faz o grep e conta: `lib/tema/guardas.test.ts` exige
+   zero ocorrências em `app/` e `components/`.
+
+   **Os valores aqui são os do tema escuro de hoje**, copiados degrau a degrau
+   da paleta do Tailwind v4. O B6.2 não move um pixel de propósito: a prova de
+   que um sweep de ~180 substituições não quebrou nada é a tabela de contraste
+   devolver exatamente as mesmas oito dívidas de antes dele. A tinta nova entra
+   no B6.5, trocando só valor — nenhum componente é reescrito de novo.
+
+   **Dois pares nascem com o mesmo valor de propósito.** `foco` é hoje igual a
+   `metodo`, e `metodo-cheio-toque` é igual a `metodo-superficie`. Separar agora
+   é uma linha; separar depois é outro sweep. O foco responde a um piso
+   diferente (3:1, WCAG 1.4.11) e num tema claro tende a divergir.
+   -------------------------------------------------------------------------- */
+
+@theme {
+  --color-*: initial;
+
+  /* Superfícies — o papel e o que se empilha sobre ele. */
+  --color-papel: oklch(12.9% 0.042 264.695);
+  --color-carta: oklch(20.8% 0.042 265.755);
+  --color-carta-alta: oklch(27.9% 0.041 260.031);
+  --color-carta-toque: oklch(37.2% 0.044 257.287);
+  --color-veu: color-mix(in oklab, oklch(12.9% 0.042 264.695) 70%, transparent);
+
+  /* Tinta — seis níveis hoje, três no B6.5. A escada desce da mais forte para
+     a mais apagada; `tinta-muda` é a que não carrega informação nenhuma. */
+  --color-tinta: oklch(96.8% 0.007 247.896);
+  --color-tinta-media: oklch(92.9% 0.013 255.508);
+  --color-tinta-fraca: oklch(86.9% 0.022 252.894);
+  --color-tinta-tenue: oklch(70.4% 0.04 256.788);
+  --color-tinta-apagada: oklch(55.4% 0.046 257.417);
+  --color-tinta-muda: oklch(44.6% 0.043 257.281);
+  --color-tinta-inversa: #fff;
+
+  /* Estrutura — o alfa vai assado no token: `border-borda`, sem modificador. */
+  --color-borda: color-mix(in oklab, #fff 10%, transparent);
+  --color-borda-fraca: color-mix(in oklab, #fff 5%, transparent);
+  --color-borda-forte: color-mix(in oklab, #fff 20%, transparent);
+  --color-foco: oklch(76.5% 0.177 163.223);
+
+  /* Método — o verde. Cinco faces porque a tinta sobre painel tingido não é
+     derivável por alfa: no escuro ela é clara, no claro terá de ser escura. A
+     superfície, essa sim, é o mesmo tom com alfa (`bg-metodo-superficie/10`). */
+  --color-metodo: oklch(76.5% 0.177 163.223);
+  --color-metodo-superficie: oklch(69.6% 0.17 162.48);
+  --color-metodo-tinta: oklch(95% 0.052 163.051);
+  --color-metodo-tinta-alta: oklch(97.9% 0.021 166.113);
+  --color-metodo-selo: oklch(90.5% 0.093 164.15);
+  --color-metodo-cheio: oklch(59.6% 0.145 163.225);
+  --color-metodo-cheio-toque: oklch(69.6% 0.17 162.48);
+
+  /* Aviso — o âmbar. Ganha, mas não é a aula. */
+  --color-aviso: oklch(82.8% 0.189 84.429);
+  --color-aviso-superficie: oklch(76.9% 0.188 70.08);
+  --color-aviso-tinta: oklch(96.2% 0.059 95.617);
+
+  /* Erro — o rosa. `erro-texto` é a quarta face: erro escrito direto sobre a
+     página, sem painel embaixo. */
+  --color-erro: oklch(71.2% 0.194 13.428);
+  --color-erro-superficie: oklch(64.5% 0.246 16.439);
+  --color-erro-tinta: oklch(94.1% 0.03 12.58);
+  --color-erro-texto: oklch(81% 0.117 11.638);
+
+  /* Dica — o azul. Só duas faces: não existe matiz de dica solta na página. */
+  --color-dica-superficie: oklch(68.5% 0.169 237.323);
+  --color-dica-tinta: oklch(95.1% 0.026 236.824);
+}
+
+/* --------------------------------------------------------------------------
+   Os quatro pincéis pedagógicos
+
+   Ficam **fora** do `@theme` de propósito. Nenhuma classe do Tailwind usa
+   estas cores, e o `@theme` do v4 poda variável que nenhuma utilitária
+   referencia — o token sumiria da folha e o `getComputedStyle` leria vazio.
+   Como propriedade de `:root` ela existe sempre.
+
+   Elas não entram por CSS: o `svg.js` do chessground grava `stroke` como
+   atributo de apresentação, onde `var()` é inválido. A única porta é
+   `drawable.brushes`, em `components/board/ChessBoard.tsx`, que as lê daqui na
+   montagem. Os valores de hoje são os padrões do pacote; o B6.4 os troca.
+   -------------------------------------------------------------------------- */
+
+:root {
+  --pincel-corte: #882020;
+  --pincel-pendurada: #882020;
+  --pincel-defendida: #15781b;
+  --pincel-seta: #003088;
+}
+
+/* --------------------------------------------------------------------------
+   Duas utilitárias próprias
+
+   São dezesseis sítios que repetiam a mesma sequência literal. Repetição de
+   receita não é reuso — é dezesseis lugares para esquecer de mudar.
+   -------------------------------------------------------------------------- */
+
+/* O anel de foco. `outline-offset` positivo joga o anel para **fora** do
+   botão, então ele é lido contra o fundo atrás, e não contra o botão. */
+@utility foco {
+  &:focus-visible {
+    outline: 2px solid var(--color-foco);
+    outline-offset: 2px;
+  }
+}
+
+/* O rótulo em caixa-alta que abre cada bloco da aula. */
+@utility rotulo {
+  font-size: var(--text-xs);
+  line-height: var(--text-xs--line-height);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
 }
 
 html {
@@ -96,6 +236,13 @@ body {
       para o canto do tabuleiro. `opacity` o próprio pacote já usa em
       `piece.ghost` e `piece.fading`. A propriedade segura é `filter`, que o
       pacote nunca escreve em `<piece>`.
+
+   As três cores daqui eram tríades RGB soltas — `52 211 153` e companhia —,
+   necessárias porque `rgb(var(--x) / .55)` exige a cor em canais crus. Cada cor
+   teria de existir em duas formas, e as tríades tinham ficado para trás na
+   paleta v3 do Tailwind: o comentário dizia `emerald-400` e o número era o
+   emerald-400 de outra versão. `color-mix()` resolve com uma forma só, e o
+   halo passa a ser de fato a cor que o rótulo dele promete.
    -------------------------------------------------------------------------- */
 
 /* O anel em volta do tabuleiro: tinta que transborda, sem entrar no layout.
@@ -104,13 +251,13 @@ body {
    e qualquer coisa que ocupe espaço geraria barra de rolagem horizontal. */
 @keyframes pulso-anel {
   0% {
-    box-shadow: 0 0 0 0 rgb(var(--cor-anel) / 0);
+    box-shadow: 0 0 0 0 transparent;
   }
   35% {
-    box-shadow: 0 0 22px 7px rgb(var(--cor-anel) / 0.55);
+    box-shadow: 0 0 22px 7px color-mix(in oklab, var(--cor-anel) 55%, transparent);
   }
   100% {
-    box-shadow: 0 0 30px 11px rgb(var(--cor-anel) / 0);
+    box-shadow: 0 0 30px 11px transparent;
   }
 }
 
@@ -124,7 +271,8 @@ body {
     filter: none;
   }
   50% {
-    filter: drop-shadow(0 0 6px rgb(251 113 133 / 0.95)) brightness(1.12);
+    filter: drop-shadow(0 0 6px color-mix(in oklab, var(--color-erro) 95%, transparent))
+      brightness(1.12);
   }
 }
 
@@ -132,29 +280,29 @@ body {
    remontagem — começa quando o atributo passa de ausente a presente. */
 @keyframes destaque-conclusao {
   0% {
-    box-shadow: 0 0 0 0 rgb(52 211 153 / 0);
+    box-shadow: 0 0 0 0 transparent;
   }
   30% {
-    box-shadow: 0 0 26px 4px rgb(52 211 153 / 0.4);
+    box-shadow: 0 0 26px 4px color-mix(in oklab, var(--color-metodo) 40%, transparent);
   }
   100% {
-    box-shadow: 0 0 0 0 rgb(52 211 153 / 0);
+    box-shadow: 0 0 0 0 transparent;
   }
 }
 
 /* Um mapa de tom → cor, uma animação só. O tom vem de `data-tom`, que é o
    mesmo `good`/`warn`/`bad` que o painel já usa. */
 .anel-pulso {
-  --cor-anel: 52 211 153; /* emerald-400 — é o método */
+  --cor-anel: var(--color-metodo);
   border-radius: 0.25rem;
 }
 
 .anel-pulso[data-tom="warn"] {
-  --cor-anel: 251 191 36; /* amber-400 — ganha, mas não é a aula */
+  --cor-anel: var(--color-aviso);
 }
 
 .anel-pulso[data-tom="bad"] {
-  --cor-anel: 251 113 133; /* rose-400 — jogou a vitória fora */
+  --cor-anel: var(--color-erro);
 }
 
 @media (prefers-reduced-motion: no-preference) {

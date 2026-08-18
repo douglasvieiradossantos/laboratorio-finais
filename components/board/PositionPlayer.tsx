@@ -206,7 +206,7 @@ export function PositionPlayer({
         aria-live="polite"
         role="status"
         className={`text-center text-sm font-medium ${
-          refusal?.tone === "bad" ? "text-rose-300" : "text-slate-300"
+          refusal?.tone === "bad" ? "text-erro-texto" : "text-tinta-fraca"
         }`}
       >
         <span key={refusal ? `refusal-${refusal.seq}` : "status"}>
@@ -243,7 +243,7 @@ function ControlButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className="min-h-11 rounded-md bg-slate-800 px-4 py-2 text-sm font-medium text-slate-100 ring-1 ring-white/10 transition hover:bg-slate-700 disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-slate-800"
+      className="min-h-11 rounded-md bg-carta-alta px-4 py-2 text-sm font-medium text-tinta ring-1 ring-borda transition hover:bg-carta-toque disabled:cursor-not-allowed disabled:opacity-40 disabled:hover:bg-carta-alta"
     >
       {children}
     </button>

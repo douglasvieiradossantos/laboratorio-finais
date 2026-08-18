@@ -28,13 +28,13 @@ export function MasterySeal({
       data-mastered={report.mastered}
       className={`flex flex-col gap-3 rounded-lg border px-4 py-3 ${
         report.mastered
-          ? "border-emerald-400/40 bg-emerald-500/10"
-          : "border-white/10 bg-slate-900"
+          ? "border-metodo/40 bg-metodo-superficie/10"
+          : "border-borda bg-carta"
       }`}
     >
       <h3
         id="selo-dominio"
-        className={`text-sm font-semibold ${report.mastered ? "text-emerald-200" : "text-slate-200"}`}
+        className={`text-sm font-semibold ${report.mastered ? "text-metodo-selo" : "text-tinta-media"}`}
       >
         {report.mastered ? "✓ " : ""}
         {report.headline}
@@ -43,8 +43,8 @@ export function MasterySeal({
       {report.missing.length > 0 && (
         <ul className="flex flex-col gap-2">
           {report.missing.map((item) => (
-            <li key={item.stage} className="flex gap-2 text-sm leading-relaxed text-slate-300">
-              <span aria-hidden className="select-none text-slate-600">
+            <li key={item.stage} className="flex gap-2 text-sm leading-relaxed text-tinta-fraca">
+              <span aria-hidden className="select-none text-tinta-muda">
                 —
               </span>
               <span>{item.text}</span>

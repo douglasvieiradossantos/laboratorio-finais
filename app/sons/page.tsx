@@ -20,12 +20,12 @@ export default function PaginaDosSons() {
       <header className="flex flex-col gap-2">
         <Link
           href="/"
-          className="text-xs font-medium text-slate-500 transition hover:text-slate-300"
+          className="text-xs font-medium text-tinta-apagada transition hover:text-tinta-fraca"
         >
           ← todas as aulas
         </Link>
         <h1 className="text-2xl font-bold tracking-tight sm:text-3xl">Sons da aula</h1>
-        <p className="max-w-prose text-sm leading-relaxed text-slate-400">
+        <p className="max-w-prose text-sm leading-relaxed text-tinta-tenue">
           Um botão por candidato, as medidas lidas do arquivo decodificado, e a
           sequência real da aula com os mesmos 620&nbsp;ms entre o seu lance e a
           resposta do defensor. Efeito isolado engana: desequilíbrio só aparece em

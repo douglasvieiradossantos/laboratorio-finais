@@ -45,7 +45,7 @@ export function ReviewStage({
 
   if (!practice) {
     return (
-      <p className="rounded-lg border border-white/10 bg-slate-900 px-4 py-6 text-sm leading-relaxed text-slate-400">
+      <p className="rounded-lg border border-borda bg-carta px-4 py-6 text-sm leading-relaxed text-tinta-tenue">
         Esta aula não tem prática real configurada, então a revisão não sabe contra que
         computador jogar.
       </p>
@@ -55,7 +55,7 @@ export function ReviewStage({
   return (
     <div className="flex flex-col gap-5">
       <div className="flex flex-col gap-3">
-        <p className="text-sm leading-relaxed text-slate-300">
+        <p className="text-sm leading-relaxed text-tinta-fraca">
           Posições novas, para provar que a técnica ficou. Mesmo computador da prática
           real — o que muda é que você nunca viu estas posições.
         </p>
@@ -72,10 +72,10 @@ export function ReviewStage({
                     type="button"
                     onClick={() => setSelecionada(id)}
                     aria-current={ativa ? "true" : undefined}
-                    className={`min-h-11 rounded-md px-3 py-2 text-sm font-medium ring-1 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 ${
+                    className={`min-h-11 rounded-md px-3 py-2 text-sm font-medium ring-1 transition foco ${
                       ativa
-                        ? "bg-emerald-600 text-white ring-emerald-400/30"
-                        : "bg-slate-900 text-slate-300 ring-white/10 hover:bg-slate-800"
+                        ? "bg-metodo-cheio text-tinta-inversa ring-metodo/30"
+                        : "bg-carta text-tinta-fraca ring-borda hover:bg-carta-alta"
                     }`}
                   >
                     Posição {i + 1}
@@ -85,7 +85,7 @@ export function ReviewStage({
                 );
               })}
             </nav>
-            <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+            <p className="rotulo text-tinta-apagada">
               {vencidas} de {ids.length} revisada(s)
             </p>
           </>

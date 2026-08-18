@@ -160,13 +160,13 @@ export function ExampleStage({
       </div>
 
       <div className="flex flex-1 flex-col gap-4">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+        <p className="rotulo text-tinta-apagada">
           Lance {index} de {total}
         </p>
 
         <div
           aria-live="polite"
-          className="min-h-20 rounded-lg border border-white/10 bg-slate-900 px-4 py-3 text-sm leading-relaxed text-slate-200"
+          className="min-h-20 rounded-lg border border-borda bg-carta px-4 py-3 text-sm leading-relaxed text-tinta-media"
         >
           <span key={index}>
             {current
@@ -210,7 +210,7 @@ export function ExampleStage({
         <div className="flex flex-wrap items-center gap-2">
           <span
             id="rotulo-velocidade"
-            className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500"
+            className="rotulo text-tinta-apagada"
           >
             Velocidade
           </span>
@@ -221,10 +221,10 @@ export function ExampleStage({
                 type="button"
                 aria-pressed={speed === option.key}
                 onClick={() => setSpeed(option.key)}
-                className={`min-h-11 rounded-md px-3 py-2 text-sm font-medium ring-1 transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400 ${
+                className={`min-h-11 rounded-md px-3 py-2 text-sm font-medium ring-1 transition foco ${
                   speed === option.key
-                    ? "bg-slate-700 text-white ring-white/20"
-                    : "bg-slate-900 text-slate-400 ring-white/10 hover:bg-slate-800"
+                    ? "bg-carta-toque text-tinta-inversa ring-borda-forte"
+                    : "bg-carta text-tinta-tenue ring-borda hover:bg-carta-alta"
                 }`}
               >
                 {option.label}

@@ -3,8 +3,50 @@
 import { useEffect, useRef } from "react";
 import { Chessground } from "@lichess-org/chessground";
 import type { Api } from "@lichess-org/chessground/api";
-import type { DrawShape } from "@lichess-org/chessground/draw";
+import type { DrawBrush, DrawBrushes, DrawShape } from "@lichess-org/chessground/draw";
 import type { Color, Dests, Key } from "@lichess-org/chessground/types";
+
+/**
+ * Os quatro pincéis pedagógicos, lidos dos tokens de `app/globals.css`.
+ *
+ * **Por que uma ponte em JavaScript e não em CSS.** A tabela de pincéis do
+ * chessground é um objeto literal (`state.js`), e o `svg.js` grava a cor como
+ * **atributo de apresentação** — `stroke="#882020"` —, onde `var()` não é
+ * sintaxe válida. Não existe seletor que alcance aquilo. A única porta é
+ * `drawable.brushes`, e é por ela que a identidade visual chega ao desenho.
+ *
+ * A leitura é uma só, na montagem: `getComputedStyle` força o cálculo de
+ * estilo, e chamá-lo a cada desenho custaria caro à toa — os tokens não mudam
+ * durante a vida de um tabuleiro. Quem trocar de direção no B6.3 remonta o
+ * componente por `key`, e a leitura acontece de novo.
+ *
+ * `opacity` e `lineWidth` ficam nos valores do pacote: o B6.2 não move um
+ * pixel de propósito, e é o B6.4 que assa o alfa no token para tirar o
+ * multiplicador escondido de `.cg-shapes { opacity: .6 }`.
+ */
+const PINCEIS = [
+  { nome: "green", token: "--pincel-defendida", opacity: 1, lineWidth: 10 },
+  { nome: "red", token: "--pincel-pendurada", opacity: 1, lineWidth: 10 },
+  { nome: "blue", token: "--pincel-seta", opacity: 1, lineWidth: 10 },
+  { nome: "paleRed", token: "--pincel-corte", opacity: 0.4, lineWidth: 15 },
+] as const;
+
+function pinceis(host: HTMLElement): Partial<DrawBrushes> {
+  const estilo = getComputedStyle(host);
+  const tabela: Record<string, DrawBrush> = {};
+  for (const { nome, token, opacity, lineWidth } of PINCEIS) {
+    const cor = estilo.getPropertyValue(token).trim();
+    // Token ausente daria um pincel invisível e um bug mudo. Melhor gritar no
+    // console e deixar o padrão do pacote de pé.
+    if (!cor) {
+      console.error(`ChessBoard: o token ${token} não existe na folha de estilo`);
+      continue;
+    }
+    tabela[nome] = { key: nome, color: cor, opacity, lineWidth };
+  }
+  return tabela;
+}
+
 
 export type ChessBoardProps = {
   /** A posição, em FEN. */
@@ -97,7 +139,14 @@ export function ChessBoard({
         },
       },
       draggable: { showGhost: true },
-      drawable: { enabled: false, visible: true },
+      drawable: {
+        enabled: false,
+        visible: true,
+        // O tipo do pacote exige a tabela inteira — os doze pincéis —, mas o
+        // `configure()` dele faz `deepMerge`: o que não vier aqui continua
+        // valendo o padrão. Trocamos os quatro que a aula usa e mais nada.
+        brushes: pinceis(host) as DrawBrushes,
+      },
     });
     apiRef.current = api;
 

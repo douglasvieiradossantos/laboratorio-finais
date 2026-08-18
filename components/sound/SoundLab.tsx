@@ -104,7 +104,7 @@ export function SoundLab() {
   return (
     <div className="flex flex-col gap-8">
       {/* ---------------- a barra de controles ---------------- */}
-      <section className="flex flex-col gap-3 rounded-lg border border-white/10 bg-slate-900 px-4 py-4">
+      <section className="flex flex-col gap-3 rounded-lg border border-borda bg-carta px-4 py-4">
         <div className="flex flex-wrap items-center gap-2">
           <LessonButton variant="primary" onClick={() => void medirTudo()}>
             Medir as {TOTAL_VARIANTES} sínteses
@@ -116,13 +116,13 @@ export function SoundLab() {
             type="button"
             aria-pressed={somLigado}
             onClick={() => setSoundOn(!somLigado)}
-            className="min-h-11 rounded-md bg-slate-800 px-4 py-2 text-sm font-medium text-slate-100 ring-1 ring-white/10 transition hover:bg-slate-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-400"
+            className="min-h-11 rounded-md bg-carta-alta px-4 py-2 text-sm font-medium text-tinta ring-1 ring-borda transition hover:bg-carta-toque foco"
           >
             Som: {somLigado ? "ligado 🔊" : "desligado 🔇"}
           </button>
         </div>
 
-        <p aria-live="polite" className="text-xs leading-relaxed text-slate-400">
+        <p aria-live="polite" className="text-xs leading-relaxed text-tinta-tenue">
           <span data-teste="estado-contexto">
             {contexto === "rodando"
               ? "Contexto de áudio: rodando."
@@ -146,22 +146,22 @@ export function SoundLab() {
           <section
             key={effect.name}
             data-efeito={effect.name}
-            className="flex flex-col gap-3 rounded-lg border border-white/10 bg-slate-900 px-4 py-4"
+            className="flex flex-col gap-3 rounded-lg border border-borda bg-carta px-4 py-4"
           >
             <div className="flex flex-wrap items-baseline justify-between gap-2">
               <h2 className="text-lg font-semibold tracking-tight">{effect.title}</h2>
-              <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">
+              <p className="rotulo text-tinta-apagada">
                 teto {effect.maxDurationMs} ms ·{" "}
                 <span data-teste={`escolhido-${effect.name}`}>toca hoje: {ativa}</span>
                 {effect.variants.length > 1 && ` · ${effect.variants.length} variantes`}
               </p>
             </div>
 
-            <p className="max-w-prose text-sm leading-relaxed text-slate-400">{effect.when}</p>
+            <p className="max-w-prose text-sm leading-relaxed text-tinta-tenue">{effect.when}</p>
 
             {effect.reference && (
-              <p className="max-w-prose rounded-md border border-white/5 bg-slate-950/40 px-3 py-2 text-xs leading-relaxed text-slate-500">
-                <strong className="font-semibold text-slate-400">
+              <p className="max-w-prose rounded-md border border-borda-fraca bg-papel/40 px-3 py-2 text-xs leading-relaxed text-tinta-apagada">
+                <strong className="font-semibold text-tinta-tenue">
                   Alvo, medido em {effect.reference.source}:
                 </strong>{" "}
                 {effect.reference.lesson}
@@ -196,9 +196,9 @@ export function SoundLab() {
         );
       })}
 
-      <p className="max-w-prose text-xs leading-relaxed text-slate-500">
-        <strong className="font-semibold text-slate-400">Confie no RMS, não no pico.</strong> As
-        camadas de ruído usam <code className="text-slate-400">Math.random()</code>, então cada
+      <p className="max-w-prose text-xs leading-relaxed text-tinta-apagada">
+        <strong className="font-semibold text-tinta-tenue">Confie no RMS, não no pico.</strong> As
+        camadas de ruído usam <code className="text-tinta-tenue">Math.random()</code>, então cada
         renderização é uma realização diferente: medindo o mesmo som cinco vezes, o pico variou
         1,5 dB e o RMS 0,65 dB. O equilíbrio entre os efeitos foi ajustado pelo RMS.
       </p>
@@ -234,9 +234,9 @@ function SinteseMedida({
 }) {
   const linha = (rotulo: string, sintetizado: string, alvo?: string) => (
     <div className="flex flex-wrap gap-x-3 gap-y-0.5">
-      <span className="w-40 shrink-0 text-slate-500">{rotulo}</span>
-      <span className="tabular-nums text-slate-200">{sintetizado}</span>
-      {alvo && <span className="tabular-nums text-slate-500">alvo {alvo}</span>}
+      <span className="w-40 shrink-0 text-tinta-apagada">{rotulo}</span>
+      <span className="tabular-nums text-tinta-media">{sintetizado}</span>
+      {alvo && <span className="tabular-nums text-tinta-apagada">alvo {alvo}</span>}
     </div>
   );
 
@@ -245,15 +245,15 @@ function SinteseMedida({
       data-teste={`sintese-${nome}-${variante.id}`}
       data-ativa={ativa ? "sim" : undefined}
       className={`rounded-md border px-3 py-3 text-xs leading-relaxed ${
-        ativa ? "border-emerald-400/40 bg-emerald-500/5" : "border-white/5 bg-slate-950/40"
+        ativa ? "border-metodo/40 bg-metodo-superficie/5" : "border-borda-fraca bg-papel/40"
       }`}
     >
       <div className="mb-2 flex flex-wrap items-center gap-x-3 gap-y-2">
-        <span className="font-semibold uppercase tracking-[0.14em] text-slate-400">
+        <span className="font-semibold uppercase tracking-[0.14em] text-tinta-tenue">
           {variante.id} · {variante.title}
         </span>
         {ativa && (
-          <span className="rounded bg-emerald-400/20 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-emerald-200">
+          <span className="rounded bg-metodo/20 px-1.5 py-0.5 text-[0.65rem] font-bold uppercase tracking-[0.12em] text-metodo-selo">
             toca hoje
           </span>
         )}
@@ -265,7 +265,7 @@ function SinteseMedida({
         )}
       </div>
 
-      <p className="mb-2 max-w-prose text-slate-500">{variante.note}</p>
+      <p className="mb-2 max-w-prose text-tinta-apagada">{variante.note}</p>
 
       {medida ? (
         <div className="flex flex-col gap-0.5">
@@ -294,7 +294,7 @@ function SinteseMedida({
           )}
         </div>
       ) : (
-        <p className="text-slate-500">
+        <p className="text-tinta-apagada">
           Clique em “Medir as sínteses”. Não precisa de gesto de áudio: a
           renderização é fora do tempo real.
         </p>
