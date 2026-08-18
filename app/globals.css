@@ -104,6 +104,35 @@
   /* Dica — o azul. Só duas faces: não existe matiz de dica solta na página. */
   --color-dica-superficie: oklch(54% 0.12 235);
   --color-dica-tinta: oklch(34% 0.095 235);
+
+  /* ------------------------------------------------------------------------
+     O tabuleiro
+
+     **As casas são quentes de propósito, num site frio.** O verde da
+     identidade significa *método* — é o que a aula usa para dizer "isto está
+     certo". Um tabuleiro verde gastaria esse significado no cenário, e o
+     tabuleiro é o objeto morno sobre a parede fria, que é como um tabuleiro de
+     verdade se comporta em cima de uma mesa.
+
+     A distância entre as duas casas é 1,58:1 — exatamente a que o tema marrom
+     do pacote produzia. Não é coincidência: é a folga que as peças cburnett
+     precisam nas duas pontas, brancas na casa clara e pretas na escura.
+
+     **Toda marca do tabuleiro é mais escura que as duas casas, e isso é
+     geometria, não gosto.** Uma marca só bate 3:1 contra as duas se estiver
+     *fora* do intervalo entre elas, e acima da casa clara não há espaço — ela
+     já está a 88,5% de claridade. Então destaque aqui é sombra, nunca brilho.
+     Foi o que matou o realce amarelo-claro de último lance que o pacote traz:
+     ele mede 1,50:1 e é invisível para quem precisa dele.
+     ------------------------------------------------------------------------ */
+  --color-casa-clara: oklch(88.5% 0.019 86);
+  --color-casa-escura: oklch(75% 0.027 78);
+  --color-coordenada: oklch(26% 0.015 160);
+
+  --color-destino: oklch(38% 0.14 152);
+  --color-ultimo-lance: oklch(41% 0.1 88);
+  --color-xeque: oklch(34% 0.19 25);
+  --color-premove: oklch(40% 0.15 262);
 }
 
 /* --------------------------------------------------------------------------
@@ -117,15 +146,30 @@
    Elas não entram por CSS: o `svg.js` do chessground grava `stroke` como
    atributo de apresentação, onde `var()` é inválido. A única porta é
    `drawable.brushes`, em `components/board/ChessBoard.tsx`, que as lê daqui na
-   montagem. Os valores de hoje ainda são os padrões do pacote; o B6.4 os
-   troca junto com o tema do tabuleiro.
+   montagem, e cada um leva o próprio alfa na tabela `PINCEIS` de lá — o
+   multiplicador escondido de `.cg-shapes { opacity: .6 }` foi a 1.
    -------------------------------------------------------------------------- */
 
 :root {
-  --pincel-corte: #882020;
-  --pincel-pendurada: #882020;
-  --pincel-defendida: #15781b;
-  --pincel-seta: #003088;
+  /* **A claridade vai toda para o par que se confunde.** Os quatro têm matizes
+     distintos, mas matiz não basta: em escala de cinza, ou para quem tem
+     deficiência de cor, sobra a claridade. E ela é um recurso escasso aqui —
+     como toda marca precisa ser 3:1 mais escura que as duas casas, a faixa
+     inteira em que os pincéis podem viver tem 2,26:1 de ponta a ponta. Separar
+     os quatro por 3:1 entre si é geometricamente impossível.
+
+     Então a faixa vai para onde dói: `pendurada` e `defendida` são o mesmo
+     desenho — um aro em volta de uma casa — com sentidos opostos, e são
+     vermelho e verde. Elas ficam nas duas pontas, a 2,16:1, e ainda se separam
+     pela espessura do traço em `ChessBoard.tsx` (14 contra 9). `corte` é uma
+     parede de seis a oito casas e `seta` é uma flecha entre duas: a forma já
+     as distingue, e elas ficam no meio.
+
+     No pacote, `corte` e `pendurada` eram o **mesmo** `#882020`. */
+  --color-pincel-corte: oklch(24% 0.17 305);
+  --color-pincel-pendurada: oklch(22% 0.19 25);
+  --color-pincel-seta: oklch(36% 0.16 250);
+  --color-pincel-defendida: oklch(44% 0.15 152);
 }
 
 /* --------------------------------------------------------------------------
@@ -187,12 +231,18 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   Ajustes no CSS do chessground
+   O tabuleiro
 
-   O tabuleiro do Lichess nasceu para um tamanho fixo, e o CSS que vem no
-   pacote traz deslocamentos em pixels calibrados para aquele tamanho. Aqui o
-   tabuleiro é fluido (ocupa a largura disponível, do celular ao desktop),
-   então esses pixels fixos saem do lugar. Tudo abaixo troca pixel por
+   O `chessground.brown.css` **não é importado**. Ele foi largado em vez de
+   sobrescrito, e o argumento decisivo é contraintuitivo: a zona sensível ficou
+   mais simples. O `!important` que morava no seletor de coordenada existia só
+   para vencer os `nth-child` do arquivo do pacote; sem o arquivo, ele sai.
+   Ficam o `base.css` (layout) e o `cburnett.css` (as peças).
+
+   O tabuleiro do Lichess nasceu para um tamanho fixo, e o CSS do pacote traz
+   deslocamentos em pixels calibrados para aquele tamanho. Aqui o tabuleiro é
+   fluido (ocupa a largura disponível, do celular ao desktop), então esses
+   pixels saem do lugar. Tudo que envolve posição abaixo troca pixel por
    porcentagem, que escala junto com a casa.
    -------------------------------------------------------------------------- */
 
@@ -209,24 +259,160 @@ body {
   transform: translate(-50%, -50%);
 }
 
+/* …e o arredondamento da sobra, que é meio pixel quando ela é ímpar.
+
+   Medido: num celular de 390px o `cg-wrap` mede 343 e o tabuleiro 336, então
+   sobram 3,5px de cada lado e a origem cai em x,5. Toda fronteira de casa passa
+   a cair em meio pixel — e é ali que a parada dura do gradiente cônico borra,
+   virando costura. As peças, que são posicionadas a partir deste contêiner,
+   também saem meio pixel fora do lugar e perdem nitidez.
+
+   **O arredondamento vai no `left`/`top`, e não no `translate`.** É uma
+   distinção que custou uma medição errada: a porcentagem do `translate` resolve
+   contra a largura do **próprio** contêiner (336, e 168 já é inteiro), enquanto
+   a do `left` resolve contra a do **pai** (343, e 171,5 não é). Arredondar o
+   translate era um no-op perfeito, e passava despercebido.
+
+   Vem em `@supports` porque `round()` é recente: onde não existir, as
+   declarações acima continuam valendo e nada quebra. */
+@supports (top: round(50%, 1px)) {
+  .cg-wrap cg-container {
+    top: round(50%, 1px);
+    left: round(50%, 1px);
+  }
+}
+
+/* As casas.
+
+   O pacote pinta a casa clara e sobrepõe um SVG em que a escura é preto a 20%
+   — o que **amarra** escura = 80% da clara, e tira a liberdade de escolher as
+   duas. `repeating-conic-gradient` dá duas cores independentes, cada uma no seu
+   token, e é o que permite o par acima ter sido escolhido por medida.
+
+   O `background-size` de 25% dá quatro ladrilhos por lado, e cada ladrilho tem
+   duas casas — oito ao todo. */
+cg-board {
+  background-color: var(--color-casa-clara);
+  background-image: repeating-conic-gradient(
+    var(--color-casa-escura) 0deg 90deg,
+    var(--color-casa-clara) 90deg 180deg
+  );
+  background-size: 25% 25%;
+}
+
+/* Os dez estados. Não são os cinco óbvios: cada destino tem a variante `.oc.`
+   (casa ocupada, isto é, captura) e a variante sob o ponteiro. */
+
+/* Destino livre: um ponto no meio da casa. */
+cg-board square.move-dest {
+  background: radial-gradient(var(--color-destino) 22%, transparent 22%);
+}
+
+cg-board square.premove-dest {
+  background: radial-gradient(var(--color-premove) 22%, transparent 22%);
+}
+
+/* Destino ocupado: um aro na borda, porque o meio tem uma peça para capturar. */
+cg-board square.oc.move-dest {
+  background: radial-gradient(transparent 78%, var(--color-destino) 78%);
+}
+
+cg-board square.oc.premove-dest {
+  background: radial-gradient(transparent 78%, var(--color-premove) 78%);
+}
+
+/* Sob o ponteiro a casa inteira acende. É retorno transitório de ponteiro, e
+   por isso o único estado do tabuleiro que não responde ao piso de 3:1 — quem
+   está com o ponteiro em cima já sabe onde ele está. */
+cg-board square.move-dest:hover,
+cg-board square.move-dest.hover {
+  background: color-mix(in oklab, var(--color-destino) 45%, transparent);
+}
+
+cg-board square.premove-dest:hover,
+cg-board square.premove-dest.hover {
+  background: color-mix(in oklab, var(--color-premove) 45%, transparent);
+}
+
+/* Último lance e casa selecionada: a casa inteira. Opacas de propósito — a
+   peça é desenhada por cima delas, e translucidez aqui clarearia a marca até
+   abaixo do piso. O realce amarelo-claro do pacote media 1,50:1. */
+cg-board square.last-move {
+  background-color: var(--color-ultimo-lance);
+}
+
+cg-board square.selected {
+  background-color: var(--color-destino);
+}
+
+cg-board square.current-premove {
+  background-color: var(--color-premove);
+}
+
+/* O xeque: um clarão que morre antes da borda, para o rei ficar dentro dele e
+   a casa vizinha não parecer marcada também. */
+cg-board square.check {
+  background: radial-gradient(
+    ellipse at center,
+    var(--color-xeque) 0%,
+    var(--color-xeque) 28%,
+    color-mix(in oklab, var(--color-xeque) 45%, transparent) 60%,
+    transparent 84%
+  );
+}
+
+/* Os desenhos da aula.
+
+   O `.cg-shapes { opacity: .6 }` do pacote é um multiplicador escondido sobre
+   **todos** os pincéis de uma vez: dois pincéis com o mesmo número na tabela
+   saíam com transparências diferentes do que a tabela dizia, e ninguém
+   conseguia ajustar um sem mexer no outro. Vai a 1, e cada pincel passa a
+   carregar o próprio alfa em `components/board/ChessBoard.tsx`. */
+.cg-wrap .cg-shapes {
+  opacity: 1;
+}
+
+/* O fantasma do arraste — a peça que fica para trás enquanto o aluno arrasta.
+   É funcionalidade, não enfeite: é ela que diz de onde a peça saiu. O pacote a
+   declara a 0,3, o que sobre papel claro é quase nada; a 0,55 o contorno dela
+   mede 4,34:1 na casa clara e 3,73:1 na escura.
+
+   **0,55 e não 0,5** de propósito: 0,5 é o que o pacote usa em `piece.fading`,
+   a peça que está sendo capturada. Fantasma do arraste e peça sumindo dizem
+   coisas diferentes e não podem ficar com a mesma transparência.
+
+   Declarar `opacity` aqui é seguro. O que a regra 3 do `CLAUDE.md` proíbe é
+   **animar** `opacity` em elemento do chessground, porque o pacote a escreve
+   ele mesmo em `piece.ghost` e `piece.fading`. */
+.cg-wrap piece.ghost {
+  opacity: 0.55;
+}
+
+/* As coordenadas.
+
+   ---cg-width é a largura real do tabuleiro, publicada pelo próprio chessground
+   (o nome tem três traços mesmo). Dividida por 8 dá a casa. */
 .cg-wrap coords {
-  /* ---cg-width é a largura real do tabuleiro, publicada pelo próprio
-     chessground (o nome tem três traços mesmo). Dividida por 8 dá a casa. */
   font-size: clamp(9px, calc(var(---cg-width, 512px) / 8 * 0.28), 14px);
   font-weight: 600;
   line-height: 1;
   opacity: 1;
 }
 
-/* O CSS do pacote alterna texto branco e escuro conforme a casa, e a alternância
-   erra de casa neste posicionamento: metade dos rótulos sai branco sobre casa
-   clara (contraste 1,4:1, ilegível). No tabuleiro marrom uma tinta escura só
-   resolve os dois casos — 11:1 na casa clara, 7:1 na escura — e ainda fica
-   igual quando o aluno gira o tabuleiro.
-   O !important é proposital: as regras do pacote são mais específicas que
-   qualquer seletor razoável escrito aqui. */
+/* Uma tinta só para as duas casas, e **sem `!important`**.
+
+   O pacote alternava branco e escuro conforme a casa, por uma pilha de
+   `nth-child` que errava de casa neste posicionamento — metade dos rótulos
+   saía branco sobre casa clara, a 1,4:1. Aquelas regras eram mais específicas
+   que qualquer seletor razoável escrito aqui, e daí o `!important`. Elas foram
+   embora com o `brown.css`.
+
+   A tinta única é o que amarra o par de casas: ela precisa de 4,5:1 contra as
+   **duas**, e é por isso que a casa escura não pode escurecer à vontade. Mede
+   10,94:1 na clara e 6,93:1 na escura, e fica igual quando o aluno gira o
+   tabuleiro. */
 .cg-wrap coords coord {
-  color: rgba(38, 34, 28, 0.9) !important;
+  color: var(--color-coordenada);
 }
 
 /* Números das linhas: no canto superior esquerdo da casa da coluna a. */
@@ -281,31 +467,52 @@ body {
 /* O anel em volta do tabuleiro: tinta que transborda, sem entrar no layout.
    `box-shadow` com spread e não `outline`, `border`, `scale` ou `inset`
    negativo — no celular a coluna do tabuleiro já é `88vw` dentro de um `px-4`,
-   e qualquer coisa que ocupe espaço geraria barra de rolagem horizontal. */
+   e qualquer coisa que ocupe espaço geraria barra de rolagem horizontal.
+
+   **São duas sombras, e a de dentro não tem desfoque.** Sobre o fundo escuro
+   antigo, um halo difuso bastava: ele acendia contra o preto. Sobre papel claro
+   um halo difuso é quase nada — clarear ainda mais só o aproxima da cor da
+   página. A correção não é brilho, é **aresta**: um aro sólido de 3px, spread
+   sem blur, mais o halo por fora. O aro é o que se vê; o halo é o que dá o
+   movimento. Nenhum dos dois ocupa layout. */
 @keyframes pulso-anel {
   0% {
-    box-shadow: 0 0 0 0 transparent;
+    box-shadow:
+      0 0 0 0 transparent,
+      0 0 0 0 transparent;
   }
   35% {
-    box-shadow: 0 0 22px 7px color-mix(in oklab, var(--cor-anel) 55%, transparent);
+    box-shadow:
+      0 0 0 3px var(--cor-anel),
+      0 0 22px 7px color-mix(in oklab, var(--cor-anel) 45%, transparent);
   }
   100% {
-    box-shadow: 0 0 30px 11px transparent;
+    box-shadow:
+      0 0 0 5px transparent,
+      0 0 30px 11px transparent;
   }
 }
 
 /* O rei matado. `drop-shadow()` acompanha o alpha do SVG, então o brilho
    contorna a silhueta da peça — não um quadrado em volta dela.
    3 × 480ms = 1,44s, e sem `fill-mode`: volta a `filter: none` sozinho, então
-   o atributo `data-mate` pode ficar setado para sempre sem repetir nada. */
+   o atributo `data-mate` pode ficar setado para sempre sem repetir nada.
+
+   **O `brightness(1.12)` saiu.** Ele clareava a peça inteira, e o rei matado
+   pode ser o branco, sobre casa clara: clarear ali lava a peça em vez de
+   destacá-la. Pior, era receita que dependia do tema — funcionava no escuro
+   por acidente. No lugar entram dois `drop-shadow` empilhados: um curto e
+   opaco, que cola tinta na silhueta e é o que se enxerga sobre fundo claro, e
+   um longo e translúcido, que faz o halo. A receita vale em qualquer fundo, e
+   só a cor é token. */
 @keyframes pulso-rei {
   0%,
   100% {
     filter: none;
   }
   50% {
-    filter: drop-shadow(0 0 6px color-mix(in oklab, var(--color-erro) 95%, transparent))
-      brightness(1.12);
+    filter: drop-shadow(0 0 2px var(--color-erro))
+      drop-shadow(0 0 9px color-mix(in oklab, var(--color-erro) 70%, transparent));
   }
 }
 

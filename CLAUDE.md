@@ -53,8 +53,11 @@ tipos de rota gerados pelo Next (`LayoutProps`, `PageProps`) e falha.
 - **Nunca animar `transform` nem `opacity` em elemento do chessground.** A
   posição de cada peça é `style.transform = translate(Xpx,Ypx)` **inline**, e um
   `@keyframes` ganha da declaração inline pela cascata: a peça salta para o canto
-  do tabuleiro. `opacity` o pacote já usa em `piece.ghost` (0.3) e `piece.fading`
-  (0.5). A propriedade segura é `filter`, que o pacote nunca escreve em
+  do tabuleiro. `opacity` o pacote já usa em `piece.ghost` e `piece.fading`.
+  **Declarar** `opacity` ali é seguro, e o projeto declara: o fantasma do
+  arraste sobe de 0,3 (invisível sobre papel claro) para 0,55, e 0,55 e não 0,5
+  porque 0,5 é o que o pacote usa em `piece.fading` — as duas coisas dizem
+  coisas diferentes. A proibição é *animar*, não declarar. A propriedade segura é `filter`, que o pacote nunca escreve em
   `<piece>`, e `drop-shadow()` acompanha o alpha do SVG — o brilho contorna a
   silhueta da peça, não um quadrado. Ver o `pulso-rei` em `app/globals.css`.
 - **Gancho no host do tabuleiro é `data-*`, nunca `className`.** O chessground

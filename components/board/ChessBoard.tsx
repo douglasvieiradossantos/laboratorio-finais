@@ -20,15 +20,26 @@ import type { Color, Dests, Key } from "@lichess-org/chessground/types";
  * durante a vida de um tabuleiro. Quem trocar de direção no B6.3 remonta o
  * componente por `key`, e a leitura acontece de novo.
  *
- * `opacity` e `lineWidth` ficam nos valores do pacote: o B6.2 não move um
- * pixel de propósito, e é o B6.4 que assa o alfa no token para tirar o
- * multiplicador escondido de `.cg-shapes { opacity: .6 }`.
+ * **O alfa mora aqui, e não mais num multiplicador escondido.** O
+ * `.cg-shapes { opacity: .6 }` do pacote multiplicava todos os pincéis de uma
+ * vez: dois com o mesmo número nesta tabela saíam com transparências
+ * diferentes do que ela dizia, e não havia como ajustar um sem mexer no outro.
+ * Ele foi a 1 em `globals.css`, e os números abaixo passaram a ser os de
+ * verdade.
+ *
+ * Três são opacos porque são traço fino — um aro em volta de uma casa. O corte
+ * é o único translúcido: ele pinta a parede inteira, seis a oito casas de uma
+ * vez, e opaco viraria um bloco. A 0,55 ele mede 3,67:1 contra a casa clara e
+ * 3,11:1 contra a escura, acima do piso de 3:1 de componente de interface.
  */
 const PINCEIS = [
-  { nome: "green", token: "--pincel-defendida", opacity: 1, lineWidth: 10 },
-  { nome: "red", token: "--pincel-pendurada", opacity: 1, lineWidth: 10 },
-  { nome: "blue", token: "--pincel-seta", opacity: 1, lineWidth: 10 },
-  { nome: "paleRed", token: "--pincel-corte", opacity: 0.4, lineWidth: 15 },
+  // A espessura é o segundo canal do par que se confunde: `pendurada` e
+  // `defendida` são o mesmo aro com sentidos opostos, e 14 contra 9 os separa
+  // mesmo em escala de cinza, onde a cor não separa.
+  { nome: "green", token: "--color-pincel-defendida", opacity: 1, lineWidth: 9 },
+  { nome: "red", token: "--color-pincel-pendurada", opacity: 1, lineWidth: 14 },
+  { nome: "blue", token: "--color-pincel-seta", opacity: 1, lineWidth: 10 },
+  { nome: "paleRed", token: "--color-pincel-corte", opacity: 0.55, lineWidth: 15 },
 ] as const;
 
 function pinceis(host: HTMLElement): Partial<DrawBrushes> {

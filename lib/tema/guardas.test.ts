@@ -5,6 +5,7 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { hex } from "./cor.ts";
 import { blocosDe, corDeToken, lerFolha, temaRaiz } from "./css.ts";
+import { MARCA } from "./marca.ts";
 
 /**
  * Os seis guardas da camada de tokens. Cada um existe porque a falha que ele
@@ -91,7 +92,7 @@ test("nenhum token nasce órfão", () => {
   const declarados = Object.keys(temaRaiz(blocosDe(readFileSync(FOLHA, "utf8"))))
     // `--color-*: initial` não é token, é a linha que apaga a paleta de fábrica.
     .filter((nome) => nome !== "--color-*")
-    .filter((nome) => nome.startsWith("--color-") || nome.startsWith("--pincel-"))
+    .filter((nome) => nome.startsWith("--color-"))
     .map((nome) => nome.replace(/^--(?:color-)?/, ""));
 
   const corpo = fontes()
@@ -100,7 +101,7 @@ test("nenhum token nasce órfão", () => {
 
   const orfaos = declarados.filter((token) => {
     // Como classe (`bg-papel`, `hover:text-tinta-tenue/80`), como variável
-    // (`var(--color-metodo)`) ou como nome lido pelo JavaScript (`--pincel-seta`).
+    // (`var(--color-metodo)`) ou como nome lido pelo JavaScript (`--color-pincel-seta`).
     //
     // O `(?![-\\w])` é o que separa `metodo` de `metodo-cheio`: sem ele, um
     // token órfão passaria de carona no nome de outro que começa igual, e o
@@ -175,17 +176,18 @@ test("cada direção candidata redefine a paleta inteira", () => {
 });
 
 test("os hexadecimais que vivem fora do CSS batem com os tokens", () => {
-  // Duas cores do projeto precisam existir em hexadecimal, e não há como
-  // evitá-las: a barra do navegador lê `themeColor` do metadata, e o favicon é
-  // lido fora do documento, sem `var()`. São os dois únicos lugares onde uma
-  // cor é digitada duas vezes — e é exatamente o tipo de par que se desfaz
-  // calado quando alguém mexe na paleta e esquece do outro lado.
+  // Cinco lugares do projeto precisam da cor em hexadecimal, e nenhum deles
+  // consegue ler CSS: a barra do navegador, o manifesto, o ícone do iOS, a
+  // imagem de compartilhamento e o favicon. Os quatro primeiros leem de
+  // `lib/tema/marca.ts`; o favicon é arquivo estático e não importa nada, então
+  // é conferido à parte. É exatamente o tipo de par que se desfaz calado na
+  // próxima vez que a paleta mudar.
   const vars = temaRaiz(lerFolha(FOLHA));
   const token = (nome: string): string => hex(corDeToken(nome, vars));
 
-  const layout = readFileSync(join(RAIZ, "app/layout.tsx"), "utf8");
-  const themeColor = /themeColor:\s*"(#[0-9a-fA-F]{3,8})"/.exec(layout)?.[1];
-  assert.equal(themeColor, token("papel"), "o `themeColor` saiu de sincronia com `papel`");
+  assert.equal(MARCA.papel, token("papel"), "MARCA.papel saiu de sincronia com o token");
+  assert.equal(MARCA.verde, token("metodo-cheio"), "MARCA.verde saiu de sincronia com o token");
+  assert.equal(MARCA.tinta, token("tinta"), "MARCA.tinta saiu de sincronia com o token");
 
   const icone = readFileSync(join(RAIZ, "app/icon.svg"), "utf8");
   const usados = [...icone.matchAll(/fill="(#[0-9a-fA-F]{3,8})"/g)].map((m) => m[1]);

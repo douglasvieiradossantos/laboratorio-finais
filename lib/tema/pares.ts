@@ -78,6 +78,46 @@ const CARTA = ["carta"];
 const CARTA_ALTA = ["carta-alta"];
 const CARTA_TOQUE = ["carta-toque"];
 
+/**
+ * As marcas do tabuleiro, cada uma medida contra **as duas casas**.
+ *
+ * A duplicação é gerada e não escrita à mão porque a regra é estrutural: uma
+ * marca que só contrasta com a casa clara desaparece em metade do tabuleiro, e
+ * qual metade depende de onde a peça está. Escrever os pares a dedo deixaria
+ * cedo ou tarde alguém acrescentar uma marca e lembrar de só uma das casas.
+ *
+ * É esta regra que amarra o par de casas inteiro: como toda marca precisa ser
+ * 3:1 **mais escura que as duas**, e acima da casa clara não sobra espaço, a
+ * casa escura não pode escurecer à vontade — cada ponto que ela desce puxa para
+ * baixo o teto de claridade de todas as marcas. As duas ficaram a 1,58:1 uma da
+ * outra, que é exatamente a distância que o tema do pacote produzia.
+ */
+const MARCAS: { onde: string; token: string; piso: number }[] = [
+  {
+    onde: "coordenada (a–h, 1–8) — tinta única para as duas casas, e é ela que fecha o orçamento do par",
+    token: "coordenada",
+    piso: AA_TEXTO,
+  },
+  { onde: "destino de lance legal e casa selecionada", token: "destino", piso: AA_COMPONENTE },
+  { onde: "realce do último lance", token: "ultimo-lance", piso: AA_COMPONENTE },
+  { onde: "clarão do rei em xeque", token: "xeque", piso: AA_COMPONENTE },
+  { onde: "destino de pré-lance", token: "premove", piso: AA_COMPONENTE },
+
+  // Os quatro pincéis pedagógicos. O `/55` do corte é o mesmo alfa que a
+  // tabela `PINCEIS` de `ChessBoard.tsx` passa ao chessground: ele pinta a
+  // parede inteira, e opaco viraria um bloco. Os outros três são traço fino e
+  // vão opacos.
+  { onde: "pincel do corte — a parede que o rei não atravessa", token: "pincel-corte/55", piso: AA_COMPONENTE },
+  { onde: "pincel da peça pendurada", token: "pincel-pendurada", piso: AA_COMPONENTE },
+  { onde: "pincel da peça defendida", token: "pincel-defendida", piso: AA_COMPONENTE },
+  { onde: "pincel da seta do exemplo", token: "pincel-seta", piso: AA_COMPONENTE },
+];
+
+const NAS_DUAS_CASAS: Par[] = MARCAS.flatMap(({ onde, token, piso }) => [
+  { onde: `${onde} — na casa clara`, texto: token, fundo: ["casa-clara"], piso },
+  { onde: `${onde} — na casa escura`, texto: token, fundo: ["casa-escura"], piso },
+]);
+
 export const PARES: Par[] = [
   // -------------------------------------------------------------------------
   // Esqueleto e tinta sobre a página
@@ -331,4 +371,8 @@ export const PARES: Par[] = [
     isencao:
       "a borda não carrega informação: o cartão já se separa da página pelo próprio fundo, e o conteúdo dele não depende de enxergar o limite. Vira contrato de verdade só se algum dia o cartão perder o fundo.",
   },
+  // -------------------------------------------------------------------------
+  // O tabuleiro — ver `NAS_DUAS_CASAS` logo abaixo
+  // -------------------------------------------------------------------------
+  ...NAS_DUAS_CASAS,
 ];

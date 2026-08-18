@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Inter, Newsreader } from "next/font/google";
+import { MARCA } from "@/lib/tema/marca";
 import "@lichess-org/chessground/assets/chessground.base.css";
-import "@lichess-org/chessground/assets/chessground.brown.css";
 import "@lichess-org/chessground/assets/chessground.cburnett.css";
 import "./globals.css";
 
@@ -32,10 +32,10 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  // O papel da identidade, em hexadecimal porque a barra do navegador não lê
-  // `var()`. É o único lugar do projeto onde uma cor é digitada duas vezes;
-  // `lib/tema/guardas.test.ts` cobra que as duas continuem iguais.
-  themeColor: "#ebf0ec",
+  // A barra do navegador não lê var(). O hexadecimal vem de
+  // lib/tema/marca.ts, que é o único lugar onde a cor existe fora do CSS e
+  // que lib/tema/guardas.test.ts confere contra os tokens.
+  themeColor: MARCA.papel,
   // Sem isto o Android escurece por conta própria os controles nativos — barra
   // de rolagem, campo de número do laboratório do motor — dentro de uma página
   // clara. Faltava desde a F0, e só agora tem resposta certa para dar.
